@@ -1,7 +1,7 @@
 {
     "general":{
         "random_state": 42,
-        "column": "stroke",
+        "column": "columna_a_predecir",
         "data": {
             "train_dev": "traindev.csv",
             "test": "test.csv",
