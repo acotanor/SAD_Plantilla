@@ -61,8 +61,8 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
                 "modelo_output":"knn_BestModel.pickle",
                 "parametros": {
                     "n_neighbors": [1,2,3,4,5,6,7,8,9,10],
-		    "weight": ["uniform","distance"],
-		    "p": [1,2]
+		            "weight": ["uniform","distance"],
+		            "p": [1,2]
                 }
             },
             {
