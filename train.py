@@ -1,5 +1,13 @@
 import json
+import csv
 import argparse
+import pickle
+import numpy as np
+import pandas as pd
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import GridSearchCV,train_test_split
+from sklearn.neighbors import KNeighborsClassifier
 
 def loadConfig(file: str) -> dict():
     """
@@ -43,11 +51,58 @@ def loadConfig(file: str) -> dict():
             
     return config
 
+def load_data(file: str, encoding='utf-8') -> pd.DataFrame:
+    """
+    Carga los datos desde un archivo CSV y elimina columnas innecesarias.
+    Parámetros:
+    - file: Ruta del archivo CSV.
+    - encoding: Codificación del archivo (por defecto 'utf-8').
+    Return:
+    - data: DataFrame con los datos cargados y limpiados.
+    Excepciones:
+    - UnicodeDecodeError: Si hay algún error con utf-8 utiliza latin1.
+    """
+    try:
+        # Cargar el archivo CSV
+        data = pd.read_csv(file, encoding=encoding)
+        
+        # Eliminar columnas innecesarias
+        data = data.loc[:, ~data.columns.str.contains('^Unnamed')] 
+        return data
+
+    except UnicodeDecodeError:
+        print(f"Error al decodificar el archivo con la codificación {encoding}. Intentando con 'latin1'.")
+        data = pd.read_csv(file, encoding='latin1')
+        data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
+        return data
+
+
+def divide_data() -> List:
+    """
+    Divide los datos en conjuntos de entrenamiento y desarrollo.
+    Codifica las etiquetas (y) como valores numéricos.
+    """
+    global data
+    x = data.drop(columns=[config["column"]]) # Eliminar la columna objetivo.
+    y = data[config["column"]] # Columna objetivo.
+
+    # Codificar las etiquetas.
+    y = LabelEncoder().fit_transform(y)
+
+    # Dividir los datos en entrenamiento y desarrollo.
+    x_train, x_dev, y_train, y_dev = train_test_split(x, y, test_size=config["dev"], stratify=y, random_state=config["random_state"])
+    
+    # Convertir x a arrays de numpy para evitar problemas con nombres de columnas.
+    x_train = x_train.values
+    x_dev = x_dev.values
+
+    return x_train, x_dev, y_train, y_dev
+
 def save_model(model_output: str, model: obj):
     """
     Función que guarda el modelo (.pkl) y los resultados del barrido de hiperparámetros (.csv).
     Parámetros:
-    - model_output: La ruta donde se guardará el modelo y el barrido de hiperparámetros.
+    - model_output: La ruta donde se guardarán el modelo y el barrido de hiperparámetros.
     - model: El modelo que queremos guardar.
     Excepciones:
     - Exception: Si ocurre algún error al guardar el modelo.
@@ -59,7 +114,7 @@ def save_model(model_output: str, model: obj):
             print(f"Modelo guardado en: {model_output.rsplit('.',1)[0]}.pkl")
         
         # Guardamos el registro de los resultados del barrido de hiperparámetros .csv.
-        with open(f"{model_output.rsplit('.',1)[0]}.csv","wb") as file:
+        with open(f"{model_output.rsplit('.',1)[0]}.csv","w") as file:
             writer = csv.writer(file)
             writer.writerow(["Params","Score"])     # Campos del csv.
             for params, score in zip(model.cv_results_['params'], model.cv_results_["mean_test_score"]):
@@ -69,31 +124,46 @@ def save_model(model_output: str, model: obj):
 
 
 
-def knn(model_output: str):
+def knn(model_output: str, parametros: dict()):
     """
     Función que implementa un algoritmo kNN.
     Hace un barrido de hiperparámetros para encontrar la combinación óptima.
+    Parámetros:
+    - model_output: La ruta donde se guardarán el modelo y el barrido de hiperparámetros.
+    - parametros: Los hiperparámetros del modelo.
     """
-    pass
+    x_train, x_dev, y_train, y_dev = divide_data()
+    model = GridSearchCV(KNeighborsClassifier(), parametros, n_jobs=config["cpu"])
+    model.fit(x_train, y_train)
+    save_model(model_output,model)
 
-def decision_tree(model_output:str):
+def decision_tree(model_output: str, parametros: dict()):
     """
     Función que implementa un algoritmo decision tree.
     Hace un barrido de hiperparámetros para encontrar la combinación óptima.
+    Parámetros:
+    - model_output: La ruta donde se guardarán el modelo y el barrido de hiperparámetros.
+    - parametros: Los hiperparámetros del modelo.
     """
     pass
 
-def random_forest(model_output:str):
+def random_forest(model_output: str, parametros: dict()):
     """
     Función que implementa un algoritmo random forest.
     Hace un barrido de hiperparámetros para encontrar la combinación óptima.
+    Parámetros:
+    - model_output: La ruta donde se guardarán el modelo y el barrido de hiperparámetros.
+    - parametros: Los hiperparámetros del modelo.
     """
     pass
 
-def naive_bayes(model_output:str):
+def naive_bayes(model_output: str, parametros: dict()):
     """
     Función que implementa un algoritmo naive bayes.
     Hace un barrido de hiperparámetros para encontrar la combinación óptima.
+    Parámetros:
+    - model_output: La ruta donde se guardarán el modelo y el barrido de hiperparámetros.
+    - parametros: Los hiperparámetros del modelo.
     """
     pass
 
@@ -104,4 +174,16 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     config = loadConfig(args.config)
-    print (config)
+    data = load_data(config["train_dev_output"])    # El traindev procesado.
+    
+    for modelo in config["modelos"]:
+        if "knn" in modelo:
+            knn(modelo["modelo_output"],modelo["parametros"])
+        elif "decision_tree" in modelo:
+            random_forest(modelo["modelo_output"],modelo["parametros"])
+        elif "random_forest" in modelo:
+            random_forest(modelo["modelo_output"],modelo["parametros"])
+        elif "naive_bayes" in modelo:
+            random_forest(modelo["modelo_output"],modelo["parametros"])
+    
+
