@@ -101,7 +101,7 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 - cpu: Los nucleos que puede utilizar el script al entrenar a los modelos, -1 significa que no hay restricciones y puede usar todos.
 - modelo_output: La ruta donde se almacenará el mejor modelo.
 - modelos: Array con la configuración de cada modelo.
-- modelo + ejecutar: modelo simplemente muestra el nombre del modelo que queremos ejecutar, si ejecutar == true entonces solo cargamos ese modelo, y el resto se ignoran. Es decir, **elegimos que modelo queremos usar cambiando ejecutar para que sea true**. Puede haber varios modelos en true a la vez por si se quiere hacer pruebas.
+- "modelo": Si el campo con el nombre del modelo es true entonces solo cargamos ese modelo, y el resto se ignoran. Puede haber varios modelos en true a la vez por si se quiere hacer pruebas.
 - parametros: Los hiperparámetros de cada modelo.
 
 ### Test:
