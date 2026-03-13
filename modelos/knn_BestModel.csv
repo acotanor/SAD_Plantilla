@@ -1,11 +1,41 @@
 Params,Score
-{'n_neighbors': 1},0.9845267934923108
-{'n_neighbors': 2},0.9770695412074722
-{'n_neighbors': 3},0.9505967843898878
-{'n_neighbors': 4},0.9543253888081473
-{'n_neighbors': 5},0.9400638255810669
-{'n_neighbors': 6},0.9393183827666587
-{'n_neighbors': 7},0.9242175718037787
-{'n_neighbors': 8},0.9242170938722662
-{'n_neighbors': 9},0.913777027570131
-{'n_neighbors': 10},0.9073447211378246
+"{'n_neighbors': 1, 'p': 1, 'weights': 'uniform'}",0.9852724100999962
+"{'n_neighbors': 1, 'p': 1, 'weights': 'distance'}",0.9852724100999962
+"{'n_neighbors': 1, 'p': 2, 'weights': 'uniform'}",0.9845267934923108
+"{'n_neighbors': 1, 'p': 2, 'weights': 'distance'}",0.9845267934923108
+"{'n_neighbors': 2, 'p': 1, 'weights': 'uniform'}",0.9774423712354746
+"{'n_neighbors': 2, 'p': 1, 'weights': 'distance'}",0.9852724100999962
+"{'n_neighbors': 2, 'p': 2, 'weights': 'uniform'}",0.9770695412074722
+"{'n_neighbors': 2, 'p': 2, 'weights': 'distance'}",0.9845267934923108
+"{'n_neighbors': 3, 'p': 1, 'weights': 'uniform'}",0.9521816052850536
+"{'n_neighbors': 3, 'p': 1, 'weights': 'distance'}",0.9845267500439914
+"{'n_neighbors': 3, 'p': 2, 'weights': 'uniform'}",0.9505967843898878
+"{'n_neighbors': 3, 'p': 2, 'weights': 'distance'}",0.9837809596430287
+"{'n_neighbors': 4, 'p': 1, 'weights': 'uniform'}",0.9555374665719494
+"{'n_neighbors': 4, 'p': 1, 'weights': 'distance'}",0.985086060258474
+"{'n_neighbors': 4, 'p': 2, 'weights': 'uniform'}",0.9543253888081473
+"{'n_neighbors': 4, 'p': 2, 'weights': 'distance'}",0.9843403567541499
+"{'n_neighbors': 5, 'p': 1, 'weights': 'uniform'}",0.9415551456930767
+"{'n_neighbors': 5, 'p': 1, 'weights': 'distance'}",0.9834082165116648
+"{'n_neighbors': 5, 'p': 2, 'weights': 'uniform'}",0.9400638255810669
+"{'n_neighbors': 5, 'p': 2, 'weights': 'distance'}",0.9836876761014693
+"{'n_neighbors': 6, 'p': 1, 'weights': 'uniform'}",0.9405300694955867
+"{'n_neighbors': 6, 'p': 1, 'weights': 'distance'}",0.9827557965489001
+"{'n_neighbors': 6, 'p': 2, 'weights': 'uniform'}",0.9393183827666587
+"{'n_neighbors': 6, 'p': 2, 'weights': 'distance'}",0.982662426110702
+"{'n_neighbors': 7, 'p': 1, 'weights': 'uniform'}",0.925801914767432
+"{'n_neighbors': 7, 'p': 1, 'weights': 'distance'}",0.9823827492793009
+"{'n_neighbors': 7, 'p': 2, 'weights': 'uniform'}",0.9242175718037787
+"{'n_neighbors': 7, 'p': 2, 'weights': 'distance'}",0.9819167226063777
+"{'n_neighbors': 8, 'p': 1, 'weights': 'uniform'}",0.9250557767799148
+"{'n_neighbors': 8, 'p': 1, 'weights': 'distance'}",0.9820099192512985
+"{'n_neighbors': 8, 'p': 2, 'weights': 'uniform'}",0.9242170938722662
+"{'n_neighbors': 8, 'p': 2, 'weights': 'distance'}",0.9810779962504099
+"{'n_neighbors': 9, 'p': 1, 'weights': 'uniform'}",0.9150817371507027
+"{'n_neighbors': 9, 'p': 1, 'weights': 'distance'}",0.9816370892232962
+"{'n_neighbors': 9, 'p': 2, 'weights': 'uniform'}",0.913777027570131
+"{'n_neighbors': 9, 'p': 2, 'weights': 'distance'}",0.9800527028113235
+"{'n_neighbors': 10, 'p': 1, 'weights': 'uniform'}",0.9082766006903938
+"{'n_neighbors': 10, 'p': 1, 'weights': 'distance'}",0.981730025178301
+"{'n_neighbors': 10, 'p': 2, 'weights': 'uniform'}",0.9073447211378246
+"{'n_neighbors': 10, 'p': 2, 'weights': 'distance'}",0.9810779528020908
