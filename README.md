@@ -20,7 +20,7 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 
 ## Explicación de cada diccionario + campo:
 ### General:
-´´´json
+```json
 "general":{
         "random_state": 42,
         "column": "columna_a_predecir",
@@ -31,27 +31,27 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
             "test_output": "test_procesado.csv"
         }
     }
-´´´
+```
 - general: Este diccionario contiene información que usan todos los scripts.
 - random_state: La semilla de números aleatorios, asegura que podamos reproducir los resultados.
 - column: La columna que queremos predecir.
 - data: Los directorios de entrada y salida de los datos.
 
 ### Procesado:
-´´´json
+```json
 "procesado": {
         "text_process": "tf_idf",
         "sampling": "oversampling",
         "drop_features": []
     }
-´´´
+```
 - procesado: Configuración especifica que necesita el script process.py.
 - text_process: Que estrategia se usa en el procesado de texto, valores posibles; tf_idf, bow.
 - sampling: Si se realiza over o undersampling o no, valores posibles; oversampling, undersampling, "".
 - drop_features: Que columnas eliminar del dataset, los valores son un array con el nombre de las columnas a eliminar.
 
 ### Train:
-´´´json
+```json
     "train": {
         "dev":0.25,
         "cpu": -1,
@@ -95,6 +95,7 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
         ]
     }
 ```
+
 - train: Configuración que necesita train.py.
 - dev: El porcentaje del dataset que corresponde al dev.
 - cpu: Los nucleos que puede utilizar el script al entrenar a los modelos, -1 significa que no hay restricciones y puede usar todos.
@@ -104,10 +105,10 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 - parametros: Los hiperparámetros de cada modelo.
 
 ### Test:
-´´´json
+```json
     "test": {
         "modelo": "modelos/knnBestModel.pickle"
     }
-´´´
+```
 - test: Configuración específica de test.py.
 - modelo: La ruta del modelo a evaluar.
