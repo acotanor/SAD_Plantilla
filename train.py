@@ -2,6 +2,14 @@ import json
 import argparse
 
 def loadConfig(file: str) -> dict():
+    """
+    Función que carga el .json de configuración.
+    Genera una configuración específica, general + train para poder reutilizar el json.
+    Parámetros:
+        - file: La ruta del archivo de configuración, config.json por defecto.
+    Return:
+        - config: Un diccionario con la configuración específica del script.
+    """
     # Cargar el archivo JSON
     with open(file, 'r', encoding='utf-8') as f:
         config_completa = json.load(f)                  # Diccionario con toda la configuración (incluyendo campos que no necesitamos)
