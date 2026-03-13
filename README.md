@@ -54,19 +54,20 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 ```json
     "train": {
         "dev":0.25,
-        "cpu": -1,
-        "modelo_output": "modelos/knnBestModel",
+        "cpu": -1, 
         "modelos": [
             {
-                "modelo": "knn",
-                "ejecutar": true,
+                "knn":true,
+                "modelo_output":"knn_BestModel.pickle",
                 "parametros": {
-                    "n_neighbors": [1,2,3,4,5,6,7,8,9,10]
+                    "n_neighbors": [1,2,3,4,5,6,7,8,9,10],
+		    "weight": ["uniform","distance"],
+		    "p": [1,2]
                 }
             },
             {
-                "modelo": "rf",
-                "ejecutar": false,
+                "random_forest":false,
+                "modelo_output":"random_forest_BestModel.pickle",
                 "parametros": {
                     "n_estimators": [10,50,100],
                     "max_depth": [0,5,10,15,20],
@@ -76,8 +77,8 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
                 }
             },
             {
-                "modelo": "dt",
-                "ejecutar": false,
+               ,
+                "modelo_output":"decision_tree_BestModel.pickle",
                 "parametros": {
                     "criterion": "entropy",
                     "max_depth": [0,5,10,15,20],
@@ -86,8 +87,8 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
                 }
             },
             {
-                "modelo": "naive_bayes",
-                "ejecutar": false,
+                "naive_bayes":false,
+                "modelo_output":"naive_bayes_BestModel.pickle",
                 "parametros": {
                     "alpha": [0.01,0.1,0.5,1,10]
                 }
