@@ -113,3 +113,18 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 ```
 - test: Configuración específica de test.py.
 - modelo: La ruta del modelo a evaluar.
+
+
+# Hiperparámetros de cada algoritmo:
+## KNN:
+KNN tiene 3 hiperparámetros:
+- n_neighbours: Los K-ésimos vecinos más cercanos, es un valor entero.
+- weights: Tiene dos valores; "uniform" y "distance". Uniform significa que no usamos pesos y distance que el peso se calcula en base a la distancia entre vecinos.
+- p: Es el tipo de cálculo que utilizamos para la distancia p=1 distancia manhattan y p=2 distancia euclideana.
+
+## Decision Tree:
+
+## Random Forest:
+
+## Naive Bayes:
+
