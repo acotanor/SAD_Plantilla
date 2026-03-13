@@ -43,7 +43,60 @@ def loadConfig(file: str) -> dict():
             
     return config
 
-    
+def save_model(model_output: str, model: obj):
+    """
+    Función que guarda el modelo (.pkl) y los resultados del barrido de hiperparámetros (.csv).
+    Parámetros:
+    - model_output: La ruta donde se guardará el modelo y el barrido de hiperparámetros.
+    - model: El modelo que queremos guardar.
+    Excepciones:
+    - Exception: Si ocurre algún error al guardar el modelo.
+    """
+    try:
+        # Guardamos el modelo .pkl.
+        with open(f"{model_output.rsplit('.',1)[0]}.pkl","wb") as file: # Quitamos la extensión y la reañadimos por si acaso la añadimos sin querer al escribir el json.
+            pickle.dump(model,file)
+            print(f"Modelo guardado en: {model_output.rsplit('.',1)[0]}.pkl")
+        
+        # Guardamos el registro de los resultados del barrido de hiperparámetros .csv.
+        with open(f"{model_output.rsplit('.',1)[0]}.csv","wb") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Params","Score"])     # Campos del csv.
+            for params, score in zip(model.cv_results_['params'], model.cv_results_["mean_test_score"]):
+                writer.writerow([params,score])     # Array de parametros, nota.
+    except Exception as e:
+        print(f"Error al guardar el modelo: {e}")
+
+
+
+def knn(model_output: str):
+    """
+    Función que implementa un algoritmo kNN.
+    Hace un barrido de hiperparámetros para encontrar la combinación óptima.
+    """
+    pass
+
+def decision_tree(model_output:str):
+    """
+    Función que implementa un algoritmo decision tree.
+    Hace un barrido de hiperparámetros para encontrar la combinación óptima.
+    """
+    pass
+
+def random_forest(model_output:str):
+    """
+    Función que implementa un algoritmo random forest.
+    Hace un barrido de hiperparámetros para encontrar la combinación óptima.
+    """
+    pass
+
+def naive_bayes(model_output:str):
+    """
+    Función que implementa un algoritmo naive bayes.
+    Hace un barrido de hiperparámetros para encontrar la combinación óptima.
+    """
+    pass
+
 if __name__ == '__main__':
     # Argumentos de la terminal (config.json)
     parser = argparse.ArgumentParser()
