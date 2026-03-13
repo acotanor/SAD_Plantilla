@@ -10,7 +10,6 @@
     "procesado": {
         "text_process": "tf_idf",
         "sampling": "oversampling",
-        "categorial": [],
         "drop_features": []
     },
     "cpu": -1,
