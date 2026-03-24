@@ -2,8 +2,6 @@ import json
 import csv
 import argparse
 import pickle
-import sys
-import numpy as np
 import pandas as pd
 
 # Importaciones de Scikit-Learn necesarias para el entrenamiento
