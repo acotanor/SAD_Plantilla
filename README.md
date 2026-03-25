@@ -125,7 +125,7 @@ KNN tiene 3 hiperparámetros:
 ## Decision Tree:
 Decision Tree tiene 4 hiperparámetros:
 - criterion: La función que se utiliza para medir la calidad de las bifurcaciones, tiene tres valores posibles; "gini", "entropy" y "log_loss".
-- max_depth: La profundidad máxima del árbol. Es un número entero o None, si es None se expanden los nodos hasta que las hojas son puras o contienen menos muestras que el min_samples_split.
+- max_depth: La profundidad máxima del árbol. Es un número entero o None, si es None se expanden los nodos hasta que las hojas son puras o contienen menos muestras que el min_samples_split. En json el objeto None de python se puede guardar como null, sin comillas, "None" se interpreta como un string y None como un error. 
 - min_samples_split: El mínimo de muestras para poder seguir bifurcando. Es un número entero.
 - min_samples_leaf: El mínimo de muestras por hoja. Es un número entero.
 
