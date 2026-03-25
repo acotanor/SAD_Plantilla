@@ -3,10 +3,10 @@
         "random_state": 42,
         "column": "stroke",
         "data": {
-            "train_dev": "traindev.csv",
-            "test": "test.csv",
-            "train_dev_output": "datasets/brain_stroke_vitaminado_limpios.csv",
-            "test_output": "test_procesado.csv"
+            "train_dev": "datasets/brain_stroke_train_dev.csv",
+            "test": "datasets/brain_stroke_test.csv",
+            "train_dev_output": "datasets/brain_stroke_train_dev_procesado.csv",
+            "test_output": "datasets/brain_stroke_test_procesado.csv"
         }
     },
     "procesado": {
