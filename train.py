@@ -8,6 +8,8 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 
 # ==========================================
@@ -137,18 +139,42 @@ def knn(model_output: str, parametros: dict):
     # 4. Guardar los resultados
     save_model(model_output, model)
 
-
-# Funciones reservadas para futuros algoritmos (Se implementarán igual que KNN)
 def decision_tree(model_output: str, parametros: dict):
-    pass
+    """
+    Lógica principal de entrnamiento para el algoritmo Decision Tree.
+    """
+    # 1. Obtener los datos listos para entrenar
+    x_train, x_dev, y_train, y_dev = divide_data()
 
+    # 2. Barrido de hiperparámetros
+    model = GridSearchCV(DecisionTreeClassifier(random_state=config["random_state"]),parametros,n_jobs=config["cpu"])
+    
+    # 3. Iniciar el entrenamiento (ajuste)
+    model.fit(x_train, y_train)
+
+    # 4. Guardar los resultados
+    save_model(model_output, model)
 
 def random_forest(model_output: str, parametros: dict):
-    pass
+    """
+    Lógica principal de entrnamiento para el algoritmo Random Forest.
+    """
+    # 1. Obtener los datos listos para entrenar
+    x_train, x_dev, y_train, y_dev = divide_data()
 
+    # 2. Barrido de hiperparámetros
+    model = GridSearchCV(RandomForestClassifier(random_state=config["random_state"]),parametros,n_jobs=config["cpu"])
+    
+    # 3. Iniciar el entrenamiento (ajuste)
+    model.fit(x_train, y_train)
+
+    # 4. Guardar los resultados
+    save_model(model_output, model)
 
 def naive_bayes(model_output: str, parametros: dict):
-    pass
+    """
+    Lógica principal de entrnamiento para el algoritmo Naive Bayes.
+    """
 
 
 # ==========================================
