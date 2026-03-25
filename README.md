@@ -123,8 +123,16 @@ KNN tiene 3 hiperparámetros:
 - p: Es el tipo de cálculo que utilizamos para la distancia p=1 distancia manhattan y p=2 distancia euclideana.
 
 ## Decision Tree:
+Decision Tree tiene 4 hiperparámetros:
+- criterion: La función que se utiliza para medir la calidad de las bifurcaciones, tiene tres valores posibles; "gini", "entropy" y "log_loss".
+- max_depth: La profundidad máxima del árbol. Es un número entero o None, si es None se expanden los nodos hasta que las hojas son puras o contienen menos muestras que el min_samples_split.
+- min_samples_split: El mínimo de muestras para poder seguir bifurcando. Es un número entero.
+- min_samples_leaf: El mínimo de muestras por hoja. Es un número entero.
 
 ## Random Forest:
+Random Forest ajusta varios decision trees por lo que comparte parametros con decision tree y añade dos nuevos:
+- n_estimators: La cantidad de árboles de decisión a ajustar, es un número entero.
+- bootstrap: Si se usa o no bootstraping, es decir, si todos los árboles se entrenan con un subset distinto o no. Puede valer true o false.
 
 ## Naive Bayes:
 
