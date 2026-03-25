@@ -132,7 +132,7 @@ def knn(model_output: str, parametros: dict):
 
     # 2. Configurar la búsqueda exhaustiva de hiperparámetros (GridSearchCV)
     # n_jobs utiliza los núcleos de CPU indicados en el JSON (-1 = todos)
-    model = GridSearchCV(KNeighborsClassifier(), parametros, n_jobs=config.get("cpu", -1),scoring="f1_macro")
+    model = GridSearchCV(KNeighborsClassifier(), parametros, n_jobs=config.get("cpu", -1), scoring=config["scoring"])
 
     # 3. Iniciar el entrenamiento (ajuste)
     model.fit(x_train, y_train)
@@ -148,7 +148,7 @@ def decision_tree(model_output: str, parametros: dict):
     x_train, x_dev, y_train, y_dev = divide_data()
 
     # 2. Barrido de hiperparámetros
-    model = GridSearchCV(DecisionTreeClassifier(random_state=config["random_state"]),parametros,n_jobs=config["cpu"])
+    model = GridSearchCV(DecisionTreeClassifier(random_state=config["random_state"]),parametros,n_jobs=config["cpu"], scoring=config["scoring"])
     
     # 3. Iniciar el entrenamiento (ajuste)
     model.fit(x_train, y_train)
@@ -164,7 +164,7 @@ def random_forest(model_output: str, parametros: dict):
     x_train, x_dev, y_train, y_dev = divide_data()
 
     # 2. Barrido de hiperparámetros
-    model = GridSearchCV(RandomForestClassifier(random_state=config["random_state"]),parametros,n_jobs=config["cpu"])
+    model = GridSearchCV(RandomForestClassifier(random_state=config["random_state"]),parametros,n_jobs=config["cpu"], scoring=config["scoring"])
     
     # 3. Iniciar el entrenamiento (ajuste)
     model.fit(x_train, y_train)
