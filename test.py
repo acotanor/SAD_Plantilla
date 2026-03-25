@@ -1,7 +1,10 @@
 import json
+import numpy as np
 import argparse
 import sys
 import pickle
+
+from sklearn.metrics import f1_score,confusion_matrix,classification_report
 
 from funciones import loadConfig,load_data
 
@@ -23,11 +26,80 @@ def loadModel(model_output: str) -> obj:
         print(f"Error al cargar el modelo: {e}")
         sys.exit(1)
 
+def comparar_metricas(metricas: dict) -> None:
+    """
+    Compara todas las métricas numéricas de los modelos evaluados 
+    y muestra por terminal el mejor modelo para cada una de ellas.
     
+    Parámetros:
+        - metricas: Diccionario con los resultados detallados de cada modelo.
+    """
+    metricas_evaluar = ["f1_micro", "f1_macro", "f1_weighted", "f1_score"]
+    mejores_modelos = {}
+    
+    print("\n--------------------------------------------------")
+    print("COMPARATIVA DE MODELOS")
+    print("--------------------------------------------------")
+    
+    for metrica in metricas_evaluar:
+        mejor_modelo = None
+        mejor_puntuacion = -1.0
+        
+        print(f"\nResultados para la métrica: {metrica.upper()}")
+        
+        for nombre_modelo, scores in metricas.items():
+            puntuacion_actual = scores.get(metrica, 0)
+            
+            if puntuacion_actual == 0:
+                continue
+                
+            print(f"  - {nombre_modelo}: {puntuacion_actual:.4f}")
+            
+            if puntuacion_actual > mejor_puntuacion:
+                mejor_puntuacion = puntuacion_actual
+                mejor_modelo = nombre_modelo
+        
+        if mejor_modelo:
+            mejores_modelos[metrica] = {"modelo": mejor_modelo, "puntuacion": mejor_puntuacion}
+            print(f"  > MEJOR MODELO: {mejor_modelo} ({mejor_puntuacion:.4f})")
+            
+    print("\n--------------------------------------------------")
+    print("RESULTADOS")
+    print("--------------------------------------------------")
+    if mejores_modelos:
+        for metrica, datos in mejores_modelos.items():
+             print(f"{metrica.upper()}: {datos['modelo']} ({datos['puntuacion']:.4f})")
+
+class NumpyEncoder(json.JSONEncoder):
+    """
+    Codificador personalizado para permitir la serialización de arrays 
+    de numpy (como la matriz de confusión) a formato JSON.
+    """
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
+
+def guardar_metricas_json(metricas: dict, ruta_archivo: str) -> None:
+    """
+    Almacena el diccionario completo de métricas en un archivo JSON.
+    
+    Parámetros:
+        - metricas: Diccionario con los resultados de cada modelo.
+        - ruta_archivo: Ruta y nombre del archivo de salida.
+    """
+    try:
+        with open(ruta_archivo, 'w', encoding='utf-8') as archivo:
+            json.dump(metricas, archivo, indent=4, cls=NumpyEncoder, ensure_ascii=False)
+        print(f"Métricas almacenadas correctamente en: {ruta_archivo}")
+    except Exception as e:
+        print(f"Error al intentar guardar las métricas en formato JSON: {e}")
+
 if __name__ == '__main__':
     # Argumentos de la terminal (config.json)
     parser = argparse.ArgumentParser()
     parser.add_argument("-c","--config",type=str, help="El directorio donde se encuentra el archivo de configuración.", default="config.json")
+    parser.add_argument("-m","--metricas",type=str, help="La ruta donde se almacenarán las métricas de los modelos", default="modelos/metricas_modelos.json")
     args = parser.parse_args()
 
     config = loadConfig(args.config,"test")
@@ -35,17 +107,59 @@ if __name__ == '__main__':
     # Separamos el dataset
     data = load_data(config["test_output"]) # Cargamos el dataset del test completo
     y_true = data[config["column"]].values # Cargamos los valores a predecir
-    data.drop(columns=[config["column"]]) # Separamos los valores a predecir del dataset para poder hacer predicciones.
+    data = data.drop(columns=[config["column"]]) # Separamos los valores a predecir del dataset para poder hacer predicciones.
 
-    # Evaluamos cada modelo
-    for modelo in config["modelos"]:
+    metricas = {} # Diccionario vacío que contendrá las métricas de todos los modelos.
+
+    # Evaluamos cada modelo y guardamos sus métricas.
+    for ruta_modelo in config["modelos"]:
         # Cargamos el modelo
-        print(f"Cargando el modelo {modelo}...")
-        model = loadModel(config['modelo'])
+        print(f"Cargando el modelo en {ruta_modelo}...")
+        model = loadModel(ruta_modelo)
+        nombre_modelo = str(model.estimator).split("Classifier")[0] # KNeighborsClassifier() -> KNeighbors, DecisionTreeClassifier(random_state=42) -> DecisionTree,...
+        print(f"Modelo {nombre_modelo} cargado correctamente.")
+
         try:
-            test(model, y_true)
-            print(f"Test del modelo {modelo} realizado con éxito.")
-            sys.exit(0)
+            predicciones = model.predict(data.values)
+            data["Predicción"] =  predicciones # Guardamos las predicciones en una nueva columna.
+            data.to_csv(f"{config["test_output"].replace('.csv','')}_prediccion_{nombre_modelo}.csv",index=False)
+            data = data.drop(columns="Predicción")
+            print(f"Predicciones del modelo {nombre_modelo} guardadas en:{config["test_output"].replace('.csv','')}_prediccion_{nombre_modelo}.csv")
+
+            # Calcular métricas
+            metricas[nombre_modelo]={}
+            metricas[nombre_modelo]["classification_report"]=classification_report(y_true,predicciones)
+            metricas[nombre_modelo]["confusion_matrix"]=confusion_matrix(y_true,predicciones)
+            metricas[nombre_modelo]["f1_micro"]=f1_score(y_true,predicciones, average='micro')
+            metricas[nombre_modelo]["f1_macro"]=f1_score(y_true,predicciones, average='macro')
+            metricas[nombre_modelo]["f1_weighted"]=f1_score(y_true,predicciones, average='weighted')
+            metricas[nombre_modelo]["f1_score"]=f1_score(y_true,predicciones)
+            print(f"""  
+Test del modelo {nombre_modelo}:
+
+    Informe de clasificación: 
+    {metricas[nombre_modelo]["classification_report"]}
+    
+    Matriz de confusión:
+    {metricas[nombre_modelo]["confusion_matrix"]}
+
+    F1:
+        F1-score micro:
+        {metricas[nombre_modelo]["f1_micro"]}
+
+        F1-score macro:
+        {metricas[nombre_modelo]["f1_macro"]}
+
+        F1-score weighted:
+        {metricas[nombre_modelo]["f1_weighted"]}
+
+        F1-score:
+        {metricas[nombre_modelo]["f1_score"]}
+                        """) 
         except Exception as e:
             print(e)
             sys.exit(1)
+    
+    comparar_metricas(metricas)
+    guardar_metricas_json(metricas,args.metricas)
+    sys.exit(0)
