@@ -11,7 +11,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import f1_score
+
 
 # Funciones definidas en funciones.py
 from funciones import loadConfig,load_data
