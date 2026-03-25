@@ -3,6 +3,7 @@ import csv
 import argparse
 import pickle
 import pandas as pd
+import sys
 
 # Importaciones de Scikit-Learn necesarias para el entrenamiento
 from sklearn.preprocessing import LabelEncoder
@@ -202,12 +203,18 @@ if __name__ == '__main__':
         if "knn" in modelo:
             print("Entrenando modelo KNN...")
             knn(modelo["modelo_output"], modelo["parametros"])
+            print("Modelo KNN entrenado con éxito.")
         elif "decision_tree" in modelo:
             print("Entrenando modelo Decision Tree...")
             decision_tree(modelo["modelo_output"], modelo["parametros"])
+            print("Modelo Decision Tree entrenado con éxito.")
         elif "random_forest" in modelo:
             print("Entrenando modelo Random Forest...")
             random_forest(modelo["modelo_output"], modelo["parametros"])
+            print("Modelo Random Forest entrenado con éxito.")
         elif "naive_bayes" in modelo:
             print("Entrenando modelo Naive Bayes...")
             naive_bayes(modelo["modelo_output"], modelo["parametros"])
+            print("Modelo Naive Bayes entrenado con éxito.")
+    
+    sys.exit(0)
