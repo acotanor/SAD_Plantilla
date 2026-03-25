@@ -3,39 +3,7 @@ import argparse
 import sys
 import pickle
 
-
-def loadConfig(file: str) -> dict():
-    """
-    Función que carga el .json de configuración.
-    Genera una configuración específica, general + test para poder reutilizar el json.
-    Parámetros:
-        - file: La ruta del archivo de configuración, config.json por defecto.
-    Return:
-        - config: Un diccionario con la configuración específica del script.
-    """
-    # Cargar el archivo JSON
-    with open(file, 'r', encoding='utf-8') as f:
-        config_completa = json.load(f)  # Diccionario con toda la configuración (incluyendo campos que no necesitamos)
-
-    config = {}  # Diccionario que tendrá la configuración específica de general + test.
-
-    # Extraer y aplanar la sección 'general'.
-    general = config_completa.get("general", {})  # Diccionario "general".
-    for key, value in general.items():
-        if key == "data" and isinstance(value, dict):
-            # Aplanar los campos dentro de 'data'.
-            for data_key, data_value in value.items():
-                config[data_key] = data_value
-        else:
-            config[key] = value
-
-    # Extraer la sección 'test'
-    test = config_completa.get("test", {})  # Diccionario "test".
-    for key, value in test.items():
-        config[key] = value
-
-    return config
-
+from funciones import loadConfig,load_data
 
 def loadModel(model_output: str) -> obj:
     """
@@ -46,25 +14,28 @@ def loadModel(model_output: str) -> obj:
         - model: El modelo cargado.
     Errores:
         - Muestra por la terminal un error si el archivo no existe o si surge otro error.
-    """
-    # return pickle.load(open(model_output,'rb'))
-    try:
-        with open(model_output, 'rb') as file:
+    """    
+
+    try: 
+        with open(model_output,'rb') as file:
             return pickle.load(file)
     except Exception as e:
         print(f"Error al cargar el modelo: {e}")
         sys.exit(0)
 
-
+    
 if __name__ == '__main__':
     # Argumentos de la terminal (config.json)
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", type=str,
-                        help="El directorio donde se encuentra el archivo de configuración.", default="config.json")
+    parser.add_argument("-c","--config",type=str, help="El directorio donde se encuentra el archivo de configuración.", default="config.json")
     args = parser.parse_args()
 
-    config = loadConfig(args.config)
-    print(config)
-    # Cargamos el modelo
-    model = loadModel(config['modelo'])
-    print(model)
+    config = loadConfig(args.config,"test")
+
+    # Separamos el dataset y obtenemos el 
+
+
+    # Evaluamos cada modelo
+    for modelo in config["modelos"]:
+        # Cargamos el modelo
+        model = loadModel(config['modelo'])

@@ -13,57 +13,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import f1_score
 
-
-# ==========================================
-# FUNCIONES DE CONFIGURACIÓN Y CARGA
-# ==========================================
-
-def loadConfig(file: str) -> dict:
-    """
-    Función que carga el archivo .json de configuración.
-    Para train.py, extraemos 'general' y filtramos los 'modelos' activos de la sección 'train'.
-    """
-    with open(file, 'r', encoding='utf-8') as f:
-        config_completa = json.load(f)
-
-    config = {}
-
-    # 1. Extraer la sección 'general' (rutas de datos, columna objetivo, etc.)
-    general = config_completa.get("general", {})
-    for key, value in general.items():
-        if key == "data" and isinstance(value, dict):
-            for data_key, data_value in value.items():
-                config[data_key] = data_value
-        else:
-            config[key] = value
-
-    # 2. Extraer la sección 'train' y filtrar solo los modelos que estén en 'true'
-    train = config_completa.get("train", {})
-    for key, value in train.items():
-        if key == "modelos" and isinstance(value, list):
-            modelos_activos = []
-            for modelo in value:
-                es_activo = any(v is True for k, v in modelo.items() if k != "parametros")
-                if es_activo:
-                    modelos_activos.append(modelo)
-            config["modelos"] = modelos_activos
-        else:
-            config[key] = value
-
-    return config
-
-
-def load_data(file: str, encoding='utf-8') -> pd.DataFrame:
-    """Carga el dataset CSV preprocesado en un DataFrame, ignorando columnas vacías."""
-    try:
-        data = pd.read_csv(file, encoding=encoding)
-        data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
-        return data
-    except UnicodeDecodeError:
-        data = pd.read_csv(file, encoding='latin1')
-        data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
-        return data
-
+# Funciones definidas en funciones.py
+from funciones import loadConfig,load_data
 
 # ==========================================
 # BLOQUE DE ENTRENAMIENTO Y UTILIDADES
@@ -190,7 +141,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # 2. Cargar el diccionario de configuración
-    config = loadConfig(args.config)
+    config = loadConfig(args.config,"train")
 
     # 3. Cargar el dataset YA PROCESADO por el script process.py
     # Se utiliza la ruta 'train_dev_output' del JSON

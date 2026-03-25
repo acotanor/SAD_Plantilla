@@ -17,51 +17,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 
-
-def loadConfig(file: str) -> dict:
-    """
-    Carga el archivo .json de configuración.
-    En process.py solo necesitamos saber las rutas de los archivos (sección 'general')
-    y qué técnicas de limpieza aplicar (sección 'procesado'). Ignoramos la sección 'train'.
-    """
-    with open(file, 'r', encoding='utf-8') as f:
-        config_completa = json.load(f)
-
-    config = {}
-
-    # 1. Extraer la sección 'general' y aplanar el diccionario 'data'
-    general = config_completa.get("general", {})
-    for key, value in general.items():
-        if key == "data" and isinstance(value, dict):
-            for data_key, data_value in value.items():
-                config[data_key] = data_value
-        else:
-            config[key] = value
-
-    # 2. Extraer la sección 'procesado' (text_process, sampling, drop_features)
-    procesado = config_completa.get("procesado", {})
-    for key, value in procesado.items():
-        config[key] = value
-
-    return config
-
-
-def load_data(file: str, encoding='utf-8') -> pd.DataFrame:
-    """
-    Carga un archivo CSV en un DataFrame de Pandas.
-    Además, elimina las columnas residuales 'Unnamed' que se suelen generar
-    accidentalmente al guardar archivos CSV con índices.
-    """
-    try:
-        data = pd.read_csv(file, encoding=encoding)
-        data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
-        return data
-    except UnicodeDecodeError:
-        # Fallback de seguridad por si el CSV tiene una codificación distinta (ej. guardado en Windows Excel)
-        data = pd.read_csv(file, encoding='latin1')
-        data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
-        return data
-
+from funciones import loadConfig,load_data
 
 # ==========================================
 # FUNCIONES MODULARES DE PREPROCESAMIENTO
@@ -309,5 +265,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Cargar el diccionario y disparar la orquestación
-    config = loadConfig(args.config)
+    config = loadConfig(args.config,"procesado")
     preprocesar_datos(config)

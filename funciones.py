@@ -24,6 +24,9 @@ def loadConfig(file: str, group: str) -> dict:
 
     # 2. Extraer la sección específica:
     if group == "procesado":
+        procesado = config_completa.get("procesado", {})
+        for key, value in procesado.items():
+            config[key] = value
 
     elif group == "train":
         # Extraer la sección 'train' y filtrar solo los modelos que estén en 'true'
@@ -38,7 +41,13 @@ def loadConfig(file: str, group: str) -> dict:
                 config["modelos"] = modelos_activos
             else:
                 config[key] = value
+    
     elif group == "test":
+        # Extraer la sección 'test'
+        test = config_completa.get("test", {})            # Diccionario "test".
+        for key, value in test.items():
+            config[key] = value
+    
     else: 
         print(f"{group} no es una categoría válida, elige entre: procesado, train y test.")
         sys.exit(0)
