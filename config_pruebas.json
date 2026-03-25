@@ -60,6 +60,6 @@
         ]
     },
     "test": {
-        "modelo": "modelos/decision_tree_BestModel.pkl"
+        "modelos": ["modelos/knn_BestModel.pkl","modelos/random_forest_BestModel.pkl","modelos/decision_tree_BestModel.pkl"]
     }
 }
