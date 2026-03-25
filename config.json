@@ -12,12 +12,14 @@
     "procesado": {
         "text_process": "tf_idf",
         "sampling": "oversampling",
+        "imputacion_numerico": "mean",
+        "imputacion_categorico": "mode",
         "drop_features": []
     },
     "train": {
         "dev":0.25,
         "cpu": -1,
-        "scoring": "f1_macro",  
+        "scoring": "f1_macro",
         "modelos": [
             {
                 "knn":true,
@@ -41,7 +43,7 @@
                 }
             },
             {
-                "decision_tree":false,
+                "decision_tree":true,
                 "modelo_output":"decision_tree_BestModel.pickle",
                 "parametros": {
                     "criterion": ["gini","entropy"],
@@ -54,12 +56,18 @@
                 "naive_bayes":false,
                 "modelo_output":"naive_bayes_BestModel.pickle",
                 "parametros": {
-                    "alpha": [0.01,0.1,0.5,1,10]
+                    "var_smoothing": [1e-9, 1e-5, 0.001, 0.01, 0.1, 0.5, 1.0, 2.0, 5.0],
+                    "priors": [
+                        null,
+                        [0.85, 0.15],
+                        [0.90, 0.10],
+                        [0.95, 0.05]
+                    ]
                 }
             }
         ]
     },
     "test": {
-        "modelos": ["modelos/knn_BestModel.pkl","modelos/random_forest_BestModel.pkl","modelos/decision_tree_BestModel.pkl"]
+        "modelos": ["modelos/knn_BestModel.pkl","modelos/random_forest_BestModel.pkl","modelos/decision_tree_BestModel.pkl","modelos/naive_bayes_BestModel.pkl"]
     }
 }

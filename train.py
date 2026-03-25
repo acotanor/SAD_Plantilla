@@ -1,8 +1,6 @@
-import json
 import csv
 import argparse
 import pickle
-import pandas as pd
 import sys
 
 # Importaciones de Scikit-Learn necesarias para el entrenamiento
@@ -11,10 +9,10 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
-
+from sklearn.naive_bayes import GaussianNB
 
 # Funciones definidas en funciones.py
-from funciones import loadConfig,load_data
+from funciones import loadConfig, load_data
 
 # ==========================================
 # BLOQUE DE ENTRENAMIENTO Y UTILIDADES
@@ -50,7 +48,6 @@ def divide_data():
 
     return x_train, x_dev, y_train, y_dev
 
-
 def save_model(model_output: str, model):
     """
     Guarda en disco el mejor modelo encontrado (.pkl) y un registro con
@@ -73,7 +70,6 @@ def save_model(model_output: str, model):
                 writer.writerow([params, score])
     except Exception as e:
         print(f"Error al guardar el modelo: {e}")
-
 
 def knn(model_output: str, parametros: dict):
     """
@@ -100,8 +96,9 @@ def decision_tree(model_output: str, parametros: dict):
     x_train, x_dev, y_train, y_dev = divide_data()
 
     # 2. Barrido de hiperparámetros
-    model = GridSearchCV(DecisionTreeClassifier(random_state=config["random_state"]),parametros,n_jobs=config["cpu"], scoring=config["scoring"])
-    
+    model = GridSearchCV(DecisionTreeClassifier(random_state=config["random_state"]), parametros, n_jobs=config["cpu"],
+                         scoring=config["scoring"])
+
     # 3. Iniciar el entrenamiento (ajuste)
     model.fit(x_train, y_train)
 
@@ -116,8 +113,9 @@ def random_forest(model_output: str, parametros: dict):
     x_train, x_dev, y_train, y_dev = divide_data()
 
     # 2. Barrido de hiperparámetros
-    model = GridSearchCV(RandomForestClassifier(random_state=config["random_state"]),parametros,n_jobs=config["cpu"], scoring=config["scoring"])
-    
+    model = GridSearchCV(RandomForestClassifier(random_state=config["random_state"]), parametros, n_jobs=config["cpu"],
+                         scoring=config["scoring"])
+
     # 3. Iniciar el entrenamiento (ajuste)
     model.fit(x_train, y_train)
 
@@ -126,8 +124,21 @@ def random_forest(model_output: str, parametros: dict):
 
 def naive_bayes(model_output: str, parametros: dict):
     """
-    Lógica principal de entrenamiento para el algoritmo Naive Bayes.
+    Lógica principal de entrenamiento para el algoritmo Naive Bayes Gaussiano.
+    Asume que las características numéricas tienen una distribución normal (gaussiana).
     """
+    # 1. Obtener los datos listos para entrenar y validar
+    x_train, x_dev, y_train, y_dev = divide_data()
+
+    # 2. Configurar la búsqueda exhaustiva de hiperparámetros (GridSearchCV)
+    # En tu JSON estás pasando el parámetro 'var_smoothing', que ayuda a estabilizar el cálculo
+    model = GridSearchCV(GaussianNB(), parametros, n_jobs=config.get("cpu", -1), scoring=config["scoring"])
+
+    # 3. Ajustar el modelo a los datos de entrenamiento
+    model.fit(x_train, y_train)
+
+    # 4. Guardar el mejor modelo (.pkl) y el histórico de métricas (.csv)
+    save_model(model_output, model)
 
 
 # ==========================================
@@ -141,7 +152,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # 2. Cargar el diccionario de configuración
-    config = loadConfig(args.config,"train")
+    config = loadConfig(args.config, "train")
 
     # 3. Cargar el dataset YA PROCESADO por el script process.py
     # Se utiliza la ruta 'train_dev_output' del JSON
@@ -167,5 +178,4 @@ if __name__ == '__main__':
             print("Entrenando modelo Naive Bayes...")
             naive_bayes(modelo["modelo_output"], modelo["parametros"])
             print("Modelo Naive Bayes entrenado con éxito.")
-    
     sys.exit(0)

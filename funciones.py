@@ -1,6 +1,5 @@
 import sys
 import json
-import csv
 import pandas as pd
 
 def loadConfig(file: str, group: str) -> dict:
@@ -41,14 +40,14 @@ def loadConfig(file: str, group: str) -> dict:
                 config["modelos"] = modelos_activos
             else:
                 config[key] = value
-    
+
     elif group == "test":
         # Extraer la sección 'test'
-        test = config_completa.get("test", {})            # Diccionario "test".
+        test = config_completa.get("test", {})  # Diccionario "test".
         for key, value in test.items():
             config[key] = value
-    
-    else: 
+
+    else:
         print(f"{group} no es una categoría válida, elige entre: procesado, train y test.")
         sys.exit(0)
     return config

@@ -1,5 +1,4 @@
 import os
-import json
 import argparse
 import pandas as pd
 
@@ -61,26 +60,45 @@ def select_features(df_train: pd.DataFrame, target_col: str):
     return num_feat, text_feat, cat_feat
 
 
-def process_missing_values(df_train: pd.DataFrame, df_test: pd.DataFrame, num_feat: list, cat_feat: list):
+def process_missing_values(df_train: pd.DataFrame, df_test: pd.DataFrame, num_feat: list, cat_feat: list, imp_num: str,
+                           imp_cat: str):
     """
-    Imputa (rellena) los valores nulos (NaN).
-    Para evitar el Data Leakage, la Media y la Moda se calculan EXCLUSIVAMENTE
-    en el df_train, y ese valor calculado se inyecta tanto en Train como en Test.
+    Imputa (rellena) los valores nulos (NaN) basándose en las estrategias del JSON.
+    Para evitar el Data Leakage, los cálculos se hacen EXCLUSIVAMENTE
+    en el df_train, y ese valor se inyecta en Train y Test.
     """
-    # Variables Numéricas: Rellenar con la Media del Train
-    for feature in num_feat:
-        mean_val = df_train[feature].mean()
-        df_train[feature] = df_train[feature].fillna(mean_val)
-        if not df_test.empty and feature in df_test.columns:
-            df_test[feature] = df_test[feature].fillna(mean_val)
 
-    # Variables Categóricas: Rellenar con la Moda (valor más frecuente) del Train
-    for feature in cat_feat:
-        if not df_train[feature].mode().empty:
-            mode_val = df_train[feature].mode()[0]
-            df_train[feature] = df_train[feature].fillna(mode_val)
+    def obtener_valor_imputacion(df, columna, estrategia):
+        # print(estrategia)
+        if estrategia == "mean":
+            return df[columna].mean()
+        elif estrategia == "median":
+            return df[columna].median()
+        elif estrategia == "mode" and not df[columna].mode().empty:
+            return df[columna].mode()[0]
+        return None  # Por si la columna está completamente vacía
+
+    # Variables Numéricas
+    for feature in num_feat:
+        val = obtener_valor_imputacion(df_train, feature, imp_num)
+        if val is not None:
+            df_train[feature] = df_train[feature].fillna(val)
             if not df_test.empty and feature in df_test.columns:
-                df_test[feature] = df_test[feature].fillna(mode_val)
+                df_test[feature] = df_test[feature].fillna(val)
+
+    # Variables Categóricas
+    for feature in cat_feat:
+        try:
+            val = obtener_valor_imputacion(df_train, feature, imp_cat)
+        except TypeError:
+            # Control de errores: Si piden media/mediana de un string, Pandas fallará.
+            print(f"Advertencia: No se puede aplicar '{imp_cat}' a la variable de texto '{feature}'. Se usará 'mode'.")
+            val = obtener_valor_imputacion(df_train, feature, "mode")
+
+        if val is not None:
+            df_train[feature] = df_train[feature].fillna(val)
+            if not df_test.empty and feature in df_test.columns:
+                df_test[feature] = df_test[feature].fillna(val)
 
     return df_train, df_test
 
@@ -234,7 +252,10 @@ def preprocesar_datos(config: dict):
 
     num_feat, text_feat, cat_feat = select_features(df_train, target_col)
 
-    df_train, df_test = process_missing_values(df_train, df_test, num_feat, cat_feat)
+    # Extraer las estrategias de imputación del config (con valores por defecto seguros)
+    imp_num = config.get("imputacion_numerico", "mean")
+    imp_cat = config.get("imputacion_categorico", "mode")
+    df_train, df_test = process_missing_values(df_train, df_test, num_feat, cat_feat, imp_num, imp_cat)
 
     df_train, df_test = cat2num(df_train, df_test, cat_feat)
 
