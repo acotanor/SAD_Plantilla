@@ -142,7 +142,7 @@ def knn(model_output: str, parametros: dict):
 
 def decision_tree(model_output: str, parametros: dict):
     """
-    Lógica principal de entrnamiento para el algoritmo Decision Tree.
+    Lógica principal de entrenamiento para el algoritmo Decision Tree.
     """
     # 1. Obtener los datos listos para entrenar
     x_train, x_dev, y_train, y_dev = divide_data()
@@ -158,7 +158,7 @@ def decision_tree(model_output: str, parametros: dict):
 
 def random_forest(model_output: str, parametros: dict):
     """
-    Lógica principal de entrnamiento para el algoritmo Random Forest.
+    Lógica principal de entrenamiento para el algoritmo Random Forest.
     """
     # 1. Obtener los datos listos para entrenar
     x_train, x_dev, y_train, y_dev = divide_data()
@@ -174,7 +174,7 @@ def random_forest(model_output: str, parametros: dict):
 
 def naive_bayes(model_output: str, parametros: dict):
     """
-    Lógica principal de entrnamiento para el algoritmo Naive Bayes.
+    Lógica principal de entrenamiento para el algoritmo Naive Bayes.
     """
 
 
