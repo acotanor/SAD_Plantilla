@@ -10,6 +10,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import f1_score
 
 
 # ==========================================
@@ -131,7 +132,7 @@ def knn(model_output: str, parametros: dict):
 
     # 2. Configurar la búsqueda exhaustiva de hiperparámetros (GridSearchCV)
     # n_jobs utiliza los núcleos de CPU indicados en el JSON (-1 = todos)
-    model = GridSearchCV(KNeighborsClassifier(), parametros, n_jobs=config.get("cpu", -1))
+    model = GridSearchCV(KNeighborsClassifier(), parametros, n_jobs=config.get("cpu", -1),scoring="f1_macro")
 
     # 3. Iniciar el entrenamiento (ajuste)
     model.fit(x_train, y_train)

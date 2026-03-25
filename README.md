@@ -100,6 +100,7 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 - train: Configuración que necesita train.py.
 - dev: El porcentaje del dataset que corresponde al dev.
 - cpu: Los nucleos que puede utilizar el script al entrenar a los modelos, -1 significa que no hay restricciones y puede usar todos.
+- scoring: La métrica que usara el barrido de hiperparámetros, estas pueden ser; f1, f1_macro, f1_weighted y f1_micro.
 - modelo_output: La ruta donde se almacenará el mejor modelo.
 - modelos: Array con la configuración de cada modelo.
 - "modelo": Si el campo con el nombre del modelo es true entonces solo cargamos ese modelo, y el resto se ignoran. Puede haber varios modelos en true a la vez por si se quiere hacer pruebas.
