@@ -18,19 +18,18 @@
   - [Decision Tree:](#decision-tree)
   - [Random Forest:](#random-forest)
   - [Naive Bayes:](#naive-bayes)
+---
 
 # Modo de uso:
 Hemos dividido el proyecto en tres fases, preprocesado, entrenamiento y test.
 ## Procesado:
-
-
-
+Este script procesa los datos de dos secciones de un dataset a la vez, de esta forma nos aseguramos que tanto el train_dev como el test se tratan igual.
 
 ## Entrenamiento:
-
+Script que entrena uno o varios modelos distintos a la vez. Desde el archivo de configuración se puede seleccionar que modelos se van a entrenar, basta con poner true el campo con el nombre del algoritmo.
 
 ## Test:
-
+Utiliza diferentes métricas para probar cada modelo y los compara. También guarda en un json los resultados de los tests para poder consultarlos con facilidad.
 
 ## Uso básico:
  La forma de ejecutar los distintos scripts es exáctamente la misma, una vez modificado el json se pueden ejecutar en este orden:
@@ -159,8 +158,8 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 - scoring: La métrica que usara el barrido de hiperparámetros, estas pueden ser; f1, f1_macro, f1_weighted y f1_micro.
 - modelos: Array con la configuración de cada modelo.
 - modelo_output: La ruta donde se almacenará el mejor modelo.
-- "knn": Si el campo con el nombre del modelo es true se entrenará este modelo, si es false se ignora. Se puede entrenar cualquier combinación de modelos.
-- parametros: Los hiperparámetros de cada modelo.
+- "knn": Si el campo con el nombre del modelo es true se entrenará este modelo, si es false se ignora. Se puede entrenar cualquier combinación de modelos. En este ejemplo se entrenan todos los modelos menos random forest.
+- parametros: Los hiperparámetros de cada modelo. (Al ser tantos tienen una sección aparte)
 
 ### Test:
 ```json
@@ -171,6 +170,7 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 - test: Configuración específica de test.py.
 - modelos: Array con las rutas de los modelos a evaluar.
 
+---
 
 # Hiperparámetros de cada algoritmo:
 ## KNN:
