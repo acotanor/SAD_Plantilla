@@ -1,17 +1,61 @@
+# Índice:
+- [Índice:](#índice)
+- [Modo de uso:](#modo-de-uso)
+  - [Procesado:](#procesado)
+  - [Entrenamiento:](#entrenamiento)
+  - [Test:](#test)
+  - [Uso básico:](#uso-básico)
+  - [Opciones extra:](#opciones-extra)
+  - [Ejemplo preparado:](#ejemplo-preparado)
+- [Explicación detallada de config.json:](#explicación-detallada-de-configjson)
+  - [Explicación de cada diccionario + campo:](#explicación-de-cada-diccionario--campo)
+    - [General:](#general)
+    - [Procesado:](#procesado-1)
+    - [Train:](#train)
+    - [Test:](#test-1)
+- [Hiperparámetros de cada algoritmo:](#hiperparámetros-de-cada-algoritmo)
+  - [KNN:](#knn)
+  - [Decision Tree:](#decision-tree)
+  - [Random Forest:](#random-forest)
+  - [Naive Bayes:](#naive-bayes)
+
 # Modo de uso:
+Hemos dividido el proyecto en tres fases, preprocesado, entrenamiento y test.
+## Procesado:
 
 
-## Preprocesado:
-...
 
 
 ## Entrenamiento:
-...
 
 
 ## Test:
-...
 
+
+## Uso básico:
+ La forma de ejecutar los distintos scripts es exáctamente la misma, una vez modificado el json se pueden ejecutar en este orden:
+```bash
+python3 process.py
+python3 train.py
+python3 test.py
+```
+
+## Opciones extra:
+Para poder utilizar distintos archivos de configuración, todos los scripts tienen una opción `-c` o `--config` para especificar que archivo de configuración utilizar. Además, test.py tiene una opción adicional que permite especificar donde guardar las métricas de los modelos `-m` o `--metricas`:
+```bash
+python3 process.py -c "config_pruebas.json"
+python3 train.py --config "config_pruebas.json"
+python3 test.py -c "config_pruebas.json" -m "modelos/metricasKNN.json
+```
+Ambas opciones tienen valores por defecto; config.json y modelos/metricas_modelos.json, por lo que no es obligatorio usarlas.
+
+## Ejemplo preparado:
+Hemos separado un dataset (brainstroke de la práctica de dataiku) y creado un archivo de configuración de ejemplo para poder probar los scripts sin tener que configurar nada:
+```bash
+python3 process.py -c "config_ejemplo.json"
+python3 train.py -c "config_ejemplo.json"
+python3 test.py -c "config_ejemplo.json" -m "momodelos/metricas_ejemplo.json
+```
 ---
 
 
@@ -42,55 +86,67 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 "procesado": {
         "text_process": "tf_idf",
         "sampling": "oversampling",
+        "imputacion_numerico": "mean",
+        "imputacion_categorico": "mode",
         "drop_features": []
     }
 ```
 - procesado: Configuración especifica que necesita el script process.py.
 - text_process: Que estrategia se usa en el procesado de texto, valores posibles; tf_idf, bow.
-- sampling: Si se realiza over o undersampling o no, valores posibles; oversampling, undersampling, "".
+- sampling: Si se realiza over o undersampling o no, valores posibles; oversampling, undersampling, null.
+- imputacion_numerico: La estrategia de imputación a seguir en datos numéricos, puede valer: 
+- imputacion_categorico: La estrategia de imputación a seguir en datos categóricos, puede valer: 
 - drop_features: Que columnas eliminar del dataset, los valores son un array con el nombre de las columnas a eliminar.
 
 ### Train:
 ```json
     "train": {
         "dev":0.25,
-        "cpu": -1, 
+        "cpu": -1,
+        "scoring": "f1_macro",
         "modelos": [
             {
                 "knn":true,
-                "modelo_output":"knn_BestModel.pickle",
+                "modelo_output":"modelos/knn_BestModel.pickle",
                 "parametros": {
                     "n_neighbors": [1,2,3,4,5,6,7,8,9,10],
-		            "weight": ["uniform","distance"],
+		            "weights": ["uniform","distance"],
 		            "p": [1,2]
                 }
             },
             {
                 "random_forest":false,
-                "modelo_output":"random_forest_BestModel.pickle",
+                "modelo_output":"modelos/random_forest_BestModel.pickle",
                 "parametros": {
                     "n_estimators": [10,50,100],
-                    "max_depth": [0,5,10,15,20],
+                    "criterion": ["gini","entropy"],
+                    "max_depth": [null,5,10,15,20],
                     "min_samples_split": [2,5],
                     "min_samples_leaf": [1,2,4],
-                    "bootstrap": ["True","False"]
+                    "bootstrap": [true,false]
                 }
             },
             {
-               ,
-                "modelo_output":"decision_tree_BestModel.pickle",
+                "decision_tree":true,
+                "modelo_output":"modelos/decision_tree_BestModel.pickle",
                 "parametros": {
-                    "criterion": "entropy",
-                    "max_depth": [0,5,10,15,20],
+                    "criterion": ["gini","entropy"],
+                    "max_depth": [null,5,10,15,20],
                     "min_samples_split": [2,5,10],
                     "min_samples_leaf": [1,2,4]
                 }
             },
             {
-                "naive_bayes":false,
-                "modelo_output":"naive_bayes_BestModel.pickle",
+                "naive_bayes":true,
+                "modelo_output":"modelos/naive_bayes_BestModel.pickle",
                 "parametros": {
-                    "alpha": [0.01,0.1,0.5,1,10]
+                    "var_smoothing": [1e-9, 1e-5, 0.001, 0.01, 0.1, 0.5, 1.0, 2.0, 5.0],
+                    "priors": [
+                        null,
+                        [0.85, 0.15],
+                        [0.90, 0.10],
+                        [0.95, 0.05]
+                    ]
                 }
             }
         ]
@@ -101,19 +157,19 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 - dev: El porcentaje del dataset que corresponde al dev.
 - cpu: Los nucleos que puede utilizar el script al entrenar a los modelos, -1 significa que no hay restricciones y puede usar todos.
 - scoring: La métrica que usara el barrido de hiperparámetros, estas pueden ser; f1, f1_macro, f1_weighted y f1_micro.
-- modelo_output: La ruta donde se almacenará el mejor modelo.
 - modelos: Array con la configuración de cada modelo.
-- "modelo": Si el campo con el nombre del modelo es true entonces solo cargamos ese modelo, y el resto se ignoran. Puede haber varios modelos en true a la vez por si se quiere hacer pruebas.
+- modelo_output: La ruta donde se almacenará el mejor modelo.
+- "knn": Si el campo con el nombre del modelo es true se entrenará este modelo, si es false se ignora. Se puede entrenar cualquier combinación de modelos.
 - parametros: Los hiperparámetros de cada modelo.
 
 ### Test:
 ```json
     "test": {
-        "modelo": "modelos/knnBestModel.pickle"
+        "modelos": ["modelos/knn_BestModel.pkl","modelos/random_forest_BestModel.pkl","modelos/decision_tree_BestModel.pkl","modelos/naive_bayes_BestModel.pkl"]
     }
 ```
 - test: Configuración específica de test.py.
-- modelo: La ruta del modelo a evaluar.
+- modelos: Array con las rutas de los modelos a evaluar.
 
 
 # Hiperparámetros de cada algoritmo:
