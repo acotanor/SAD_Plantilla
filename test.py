@@ -129,7 +129,7 @@ if __name__ == '__main__':
             print(f"Saltando la evaluación para {ruta_modelo} porque no existe el archivo.\n")
             continue
 
-        nombre_modelo = str(model.estimator).split("Classifier")[0]  # KNeighborsClassifier() -> KNeighbors, DecisionTreeClassifier(random_state=42) -> DecisionTree,...
+        nombre_modelo = str(model.estimator).split("Classifier")[0].split("(")[0]  # KNeighborsClassifier() -> KNeighbors, DecisionTreeClassifier(random_state=42) -> DecisionTree,...
         print(f"Modelo {nombre_modelo} cargado correctamente.")
 
         try:
