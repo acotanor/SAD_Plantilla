@@ -1,37 +1,35 @@
-# Índice:
-- [Índice:](#índice)
-- [Modo de uso:](#modo-de-uso)
-  - [Procesado:](#procesado)
-  - [Entrenamiento:](#entrenamiento)
-  - [Test:](#test)
-  - [Uso básico:](#uso-básico)
-  - [Opciones extra:](#opciones-extra)
-  - [Ejemplo preparado:](#ejemplo-preparado)
-- [Explicación detallada de config.json:](#explicación-detallada-de-configjson)
-  - [Explicación de cada diccionario + campo:](#explicación-de-cada-diccionario--campo)
-    - [General:](#general)
-    - [Procesado:](#procesado-1)
-    - [Train:](#train)
-    - [Test:](#test-1)
-- [Hiperparámetros de cada algoritmo:](#hiperparámetros-de-cada-algoritmo)
-  - [KNN:](#knn)
-  - [Decision Tree:](#decision-tree)
-  - [Random Forest:](#random-forest)
-  - [Naive Bayes:](#naive-bayes)
+- [Modo de uso](#modo-de-uso)
+  - [Procesado](#procesado)
+  - [Entrenamiento](#entrenamiento)
+  - [Test](#test)
+  - [Uso básico](#uso-básico)
+  - [Opciones extra](#opciones-extra)
+  - [Ejemplo preparado](#ejemplo-preparado)
+- [Explicación detallada de config.json](#explicación-detallada-de-configjson)
+  - [Explicación de cada diccionario + campo](#explicación-de-cada-diccionario--campo)
+    - [General](#general)
+    - [Procesado](#procesado-1)
+    - [Train](#train)
+    - [Test](#test-1)
+- [Hiperparámetros de cada algoritmo](#hiperparámetros-de-cada-algoritmo)
+  - [KNN](#knn)
+  - [Decision Tree](#decision-tree)
+  - [Random Forest](#random-forest)
+  - [Naive Bayes](#naive-bayes)
 ---
 
-# Modo de uso:
+# Modo de uso
 Hemos dividido el proyecto en tres fases, preprocesado, entrenamiento y test.
-## Procesado:
+## Procesado
 Este script procesa los datos de dos secciones de un dataset a la vez, de esta forma nos aseguramos que tanto el train_dev como el test se tratan igual.
 
-## Entrenamiento:
+## Entrenamiento
 Script que entrena uno o varios modelos distintos a la vez. Desde el archivo de configuración se puede seleccionar que modelos se van a entrenar, basta con poner true el campo con el nombre del algoritmo.
 
-## Test:
+## Test
 Utiliza diferentes métricas para probar cada modelo y los compara. También guarda en un json los resultados de los tests para poder consultarlos con facilidad.
 
-## Uso básico:
+## Uso básico
  La forma de ejecutar los distintos scripts es exáctamente la misma, una vez modificado el json se pueden ejecutar en este orden:
 ```bash
 python3 process.py
@@ -39,16 +37,16 @@ python3 train.py
 python3 test.py
 ```
 
-## Opciones extra:
+## Opciones extra
 Para poder utilizar distintos archivos de configuración, todos los scripts tienen una opción `-c` o `--config` para especificar que archivo de configuración utilizar. Además, test.py tiene una opción adicional que permite especificar donde guardar las métricas de los modelos `-m` o `--metricas`:
 ```bash
 python3 process.py -c "config_pruebas.json"
 python3 train.py --config "config_pruebas.json"
-python3 test.py -c "config_pruebas.json" -m "modelos/metricasKNN.json
+python3 test.py -c "config_pruebas.json" --metricas "modelos/metricasKNN.json
 ```
 Ambas opciones tienen valores por defecto; config.json y modelos/metricas_modelos.json, por lo que no es obligatorio usarlas.
 
-## Ejemplo preparado:
+## Ejemplo preparado
 Hemos separado un dataset (brainstroke de la práctica de dataiku) y creado un archivo de configuración de ejemplo para poder probar los scripts sin tener que configurar nada:
 ```bash
 python3 process.py -c "config_ejemplo.json"
@@ -58,11 +56,11 @@ python3 test.py -c "config_ejemplo.json" -m "momodelos/metricas_ejemplo.json
 ---
 
 
-# Explicación detallada de config.json:
+# Explicación detallada de config.json
 Cada script de la plantilla utiliza config.json como archivo de configuración común, para facilitar cargar la configuración sin tener que parsear los datos que necesitan otros scripts se ha dividido en cuatro diccionarios. Todos los scripts necesitan los datos de general y el script train.py necesita también el diccionario train, por lo que en train.py se carga solo general + train.
 
-## Explicación de cada diccionario + campo:
-### General:
+## Explicación de cada diccionario + campo
+### General
 ```json
 "general":{
         "random_state": 42,
@@ -80,7 +78,7 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 - column: La columna que queremos predecir.
 - data: Los directorios de entrada y salida de los datos.
 
-### Procesado:
+### Procesado
 ```json
 "procesado": {
         "text_process": "tf_idf",
@@ -93,11 +91,11 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 - procesado: Configuración especifica que necesita el script process.py.
 - text_process: Que estrategia se usa en el procesado de texto, valores posibles; tf_idf, bow.
 - sampling: Si se realiza over o undersampling o no, valores posibles; oversampling, undersampling, null.
-- imputacion_numerico: La estrategia de imputación a seguir en datos numéricos, puede valer: 
-- imputacion_categorico: La estrategia de imputación a seguir en datos categóricos, puede valer: 
+- imputacion_numerico: La estrategia de imputación a seguir en datos numéricos, puede valer: mean, median o mode.
+- imputacion_categorico: La estrategia de imputación a seguir en datos categóricos, puede valer: mean, median o mode.
 - drop_features: Que columnas eliminar del dataset, los valores son un array con el nombre de las columnas a eliminar.
 
-### Train:
+### Train
 ```json
     "train": {
         "dev":0.25,
@@ -161,7 +159,7 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 - "knn": Si el campo con el nombre del modelo es true se entrenará este modelo, si es false se ignora. Se puede entrenar cualquier combinación de modelos. En este ejemplo se entrenan todos los modelos menos random forest.
 - parametros: Los hiperparámetros de cada modelo. (Al ser tantos tienen una sección aparte)
 
-### Test:
+### Test
 ```json
     "test": {
         "modelos": ["modelos/knn_BestModel.pkl","modelos/random_forest_BestModel.pkl","modelos/decision_tree_BestModel.pkl","modelos/naive_bayes_BestModel.pkl"]
@@ -172,24 +170,26 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 
 ---
 
-# Hiperparámetros de cada algoritmo:
-## KNN:
+# Hiperparámetros de cada algoritmo
+## KNN
 KNN tiene 3 hiperparámetros:
 - n_neighbours: Los K-ésimos vecinos más cercanos, es un valor entero.
 - weights: Tiene dos valores; "uniform" y "distance". Uniform significa que no usamos pesos y distance que el peso se calcula en base a la distancia entre vecinos.
 - p: Es el tipo de cálculo que utilizamos para la distancia p=1 distancia manhattan y p=2 distancia euclideana.
 
-## Decision Tree:
+## Decision Tree
 Decision Tree tiene 4 hiperparámetros:
 - criterion: La función que se utiliza para medir la calidad de las bifurcaciones, tiene tres valores posibles; "gini", "entropy" y "log_loss".
 - max_depth: La profundidad máxima del árbol. Es un número entero o None, si es None se expanden los nodos hasta que las hojas son puras o contienen menos muestras que el min_samples_split. En json el objeto None de python se puede guardar como null, sin comillas, "None" se interpreta como un string y None como un error. 
 - min_samples_split: El mínimo de muestras para poder seguir bifurcando. Es un número entero.
 - min_samples_leaf: El mínimo de muestras por hoja. Es un número entero.
 
-## Random Forest:
+## Random Forest
 Random Forest ajusta varios decision trees por lo que comparte parametros con decision tree y añade dos nuevos:
 - n_estimators: La cantidad de árboles de decisión a ajustar, es un número entero.
 - bootstrap: Si se usa o no bootstraping, es decir, si todos los árboles se entrenan con un subset distinto o no. Puede valer true o false.
 
-## Naive Bayes:
-
+## Naive Bayes
+El modelo Naive Bayes Gausiano tiene dos hiperparámetros:
+- var_smoothing: Porcentaje más grande de la varianza que se suma para estabilizar el cálculo. Puede valer floats tanto en notación científica como en decimal; 1e-9, 1e-5, 0.001...
+- priors: Probabilidad a priori de las clases, puede valer un array de dos floats (prob a + prob b) o null si no hay probabilidad a priori.
