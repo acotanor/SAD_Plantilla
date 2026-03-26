@@ -51,7 +51,7 @@ Hemos separado un dataset (brainstroke de la práctica de dataiku) y creado un a
 ```bash
 python3 process.py -c "config_ejemplo.json"
 python3 train.py -c "config_ejemplo.json"
-python3 test.py -c "config_ejemplo.json" -m "momodelos/metricas_ejemplo.json
+python3 test.py -c "config_ejemplo.json" -m "modelos/metricas_ejemplo.json"
 ```
 ---
 
