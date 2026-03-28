@@ -9,7 +9,15 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.naive_bayes import GaussianNB
+from sklearn.base import BaseEstimator, ClassifierMixin # <-- NUEVO: Para crear el Wrapper
+
+# --- NUEVAS IMPORTACIONES PARA NAIVE BAYES ---
+from sklearn.naive_bayes import CategoricalNB
+from sklearn.preprocessing import KBinsDiscretizer
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+# --- https://pypi.org/project/mixed-naive-bayes/ (mixed-naive-bayes proporcionado por Aitziber, especificado en la tarea 4)
+from mixed_naive_bayes import MixedNB
 
 # Funciones definidas en funciones.py
 from funciones import loadConfig, load_data
@@ -17,6 +25,46 @@ from funciones import loadConfig, load_data
 # ==========================================
 # BLOQUE DE ENTRENAMIENTO Y UTILIDADES
 # ==========================================
+
+# CLASE WRAPPER PARA MIXED NAIVE BAYES
+class ScikitMixedNB(BaseEstimator, ClassifierMixin):
+    """
+    Envoltorio ultra-ligero para conectar mixed_naive_bayes con GridSearchCV.
+    Utiliza np.errstate para manejar de forma segura y localizada el defecto de
+    underflow (0.0 / 0.0) de la librería externa, sin usar filtros globales.
+    """
+
+    def __init__(self, alpha=0.5, categorical_features=None, max_categories=None):
+        self.alpha = alpha
+        self.categorical_features = categorical_features
+        self.max_categories = max_categories
+        self.model_ = None
+
+    def fit(self, X, y):
+        import numpy as np
+        self.classes_ = np.unique(y)
+
+        self.model_ = MixedNB(
+            alpha=self.alpha,
+            categorical_features=self.categorical_features,
+            max_categories=self.max_categories
+        )
+
+        # Aislamos el error matemático solo durante el ajuste
+        with np.errstate(divide='ignore', invalid='ignore'):
+            self.model_.fit(X, y)
+        return self
+
+    def predict(self, X):
+        import numpy as np
+        # Aislamos el error matemático de 0/0 solo durante la predicción
+        with np.errstate(divide='ignore', invalid='ignore'):
+            return self.model_.predict(X)
+
+    def predict_proba(self, X):
+        import numpy as np
+        with np.errstate(divide='ignore', invalid='ignore'):
+            return self.model_.predict_proba(X)
 
 def divide_data():
     """
@@ -122,22 +170,86 @@ def random_forest(model_output: str, parametros: dict):
     # 4. Guardar los resultados
     save_model(model_output, model)
 
-def naive_bayes(model_output: str, parametros: dict):
+
+def categorical_nb(model_output: str, parametros: dict):
     """
-    Lógica principal de entrenamiento para el algoritmo Naive Bayes Gaussiano.
-    Asume que las características numéricas tienen una distribución normal (gaussiana).
+    Lógica principal de entrenamiento para Categorical Naive Bayes.
+
+    Según el enunciado, para usar CategoricalNB necesitamos que TODOS los datos sean discretos/categóricos.
+    Como nuestro dataset (procesado en process.py) tiene algunas variables numéricas continuas (floats),
+    tenemos que discretizarlas primero (agruparlas en "cajas" o "bins") usando KBinsDiscretizer.
     """
-    # 1. Obtener los datos listos para entrenar y validar
+    # 1. Obtenemos los datos listos para entrenar en formato NumPy array.
     x_train, x_dev, y_train, y_dev = divide_data()
 
-    # 2. Configurar la búsqueda exhaustiva de hiperparámetros (GridSearchCV)
-    # En tu JSON estás pasando el parámetro 'var_smoothing', que ayuda a estabilizar el cálculo
-    model = GridSearchCV(GaussianNB(), parametros, n_jobs=config.get("cpu", -1), scoring=config["scoring"])
+    # 2. Identificar qué columnas son continuas y cuáles son categóricas.
+    # Miramos el DataFrame 'data' original (cargado globalmente) para leer sus tipos (dtypes).
+    x_df = data.drop(columns=[config["column"]])
 
-    # 3. Ajustar el modelo a los datos de entrenamiento
+    # Guardamos la posición (índice) de las columnas que ya son categóricas (enteros o texto).
+    cat_cols_idx = [i for i, dtype in enumerate(x_df.dtypes) if dtype in ['int64', 'int32', 'object']]
+
+    # Guardamos la posición (índice) de las columnas numéricas continuas (floats).
+    num_cols_idx = [i for i, dtype in enumerate(x_df.dtypes) if dtype in ['float64', 'float32']]
+
+    # 3. ColumnTransformer: El "director de tráfico" de las columnas.
+    # Le decimos: "Aplica KBinsDiscretizer SOLO a las columnas numéricas continuas.
+    # A las categóricas, déjalas pasar tal cual ('passthrough') para no estropearlas."
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', KBinsDiscretizer(encode='ordinal'), num_cols_idx),
+            ('cat', 'passthrough', cat_cols_idx)
+        ])
+
+    # 4. Pipeline: La tubería que une el preprocesado y el modelo de clasificación.
+    # Esto es VITAL para evitar la "Fuga de Datos" (Data Leakage) al usar GridSearchCV.
+    # Asegura que los rangos de las cajas de discretización se calculen estrictamente con los
+    # datos de entrenamiento de cada pliegue interno, sin hacer trampa mirando los de validación.
+    pipeline = Pipeline([
+        ('preprocessor', preprocessor),
+        ('clf', CategoricalNB())
+    ])
+
+    # 5. Búsqueda exhaustiva de hiperparámetros (GridSearchCV).
+    # OJO: Como usamos un Pipeline, el GridSearchCV busca combinaciones para toda la tubería a la vez
+    # (por eso en el config.json los parámetros se llaman 'preprocessor__num__n_bins' o 'clf__alpha').
+    model = GridSearchCV(pipeline, parametros, n_jobs=config.get("cpu", -1), scoring=config["scoring"])
+
+    # 6. Entrenamiento y guardado de resultados.
+    model.fit(x_train, y_train)
+    save_model(model_output, model)
+
+def mixed_nb(model_output: str, parametros: dict):
+    """
+    Lógica principal de entrenamiento para Mixed Naive Bayes.
+
+    A diferencia de CategoricalNB, MixedNB maneja inteligentemente datos mixtos por dentro.
+    Para las variables continuas asume una curva Gaussiana y para las discretas una Categórica.
+    Nuestro único trabajo es chivarle explícitamente cuáles son las columnas categóricas.
+    """
+    # 1. Obtenemos los datos en formato NumPy array.
+    x_train, x_dev, y_train, y_dev = divide_data()
+
+    # 2. Localizar la posición (índices) de las columnas categóricas.
+    # Repetimos el proceso de leer el DataFrame original para separar tipos de datos.
+    x_df = data.drop(columns=[config["column"]])
+    cat_cols_idx = [i for i, dtype in enumerate(x_df.dtypes) if dtype in ['int64', 'int32', 'object']]
+
+    # 3. Inicializar el modelo MixedNB.
+    # Calculamos cuántas categorías únicas tiene cada columna categórica.
+    # Así evitamos el error de validación cruzada si falta alguna en un pliegue.
+
+    # (Usamos nuestro envoltorio compatible (ScikitMixedNB))
+    max_categories = [int(x_df.iloc[:, i].max()) + 1 for i in cat_cols_idx]
+
+    clf = ScikitMixedNB(categorical_features=cat_cols_idx, max_categories=max_categories)
+
+    # 4. Búsqueda exhaustiva de hiperparámetros y entrenamiento.
+    # Aquí no usamos Pipeline porque el modelo ya hace la separación internamente.
+    model = GridSearchCV(clf, parametros, n_jobs=config.get("cpu", -1), scoring=config["scoring"])
     model.fit(x_train, y_train)
 
-    # 4. Guardar el mejor modelo (.pkl) y el histórico de métricas (.csv)
+    # 5. Guardado del mejor modelo y reporte de métricas.
     save_model(model_output, model)
 
 
@@ -174,8 +286,12 @@ if __name__ == '__main__':
             print("Entrenando modelo Random Forest...")
             random_forest(modelo["modelo_output"], modelo["parametros"])
             print("Modelo Random Forest entrenado con éxito.")
-        elif "naive_bayes" in modelo:
-            print("Entrenando modelo Naive Bayes...")
-            naive_bayes(modelo["modelo_output"], modelo["parametros"])
-            print("Modelo Naive Bayes entrenado con éxito.")
+        elif "categorical_nb" in modelo:
+            print("Entrenando modelo Categorical Naive Bayes con Discretización...")
+            categorical_nb(modelo["modelo_output"], modelo["parametros"])
+            print("Modelo CategoricalNB entrenado con éxito.")
+        elif "mixed_nb" in modelo:
+            print("Entrenando modelo Mixed Naive Bayes...")
+            mixed_nb(modelo["modelo_output"], modelo["parametros"])
+            print("Modelo MixedNB entrenado con éxito.")
     sys.exit(0)

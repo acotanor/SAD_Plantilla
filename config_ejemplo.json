@@ -22,7 +22,7 @@
         "scoring": "f1_macro",
         "modelos": [
             {
-                "knn":true,
+                "knn": true,
                 "modelo_output":"modelos/knn_BestModel.pickle",
                 "parametros": {
                     "n_neighbors": [1,2,3,4,5,6,7,8,9,10],
@@ -31,7 +31,7 @@
                 }
             },
             {
-                "random_forest":true,
+                "random_forest": false,
                 "modelo_output":"modelos/random_forest_BestModel.pickle",
                 "parametros": {
                     "n_estimators": [10,50,100],
@@ -43,7 +43,7 @@
                 }
             },
             {
-                "decision_tree":true,
+                "decision_tree": false,
                 "modelo_output":"modelos/decision_tree_BestModel.pickle",
                 "parametros": {
                     "criterion": ["gini","entropy"],
@@ -53,21 +53,31 @@
                 }
             },
             {
-                "naive_bayes":true,
-                "modelo_output":"modelos/naive_bayes_BestModel.pickle",
+                "categorical_nb": false,
+                "modelo_output": "modelos/categorical_nb_BestModel.pickle",
                 "parametros": {
-                    "var_smoothing": [1e-9, 1e-5, 0.001, 0.01, 0.1, 0.5, 1.0, 2.0, 5.0],
-                    "priors": [
-                        null,
-                        [0.85, 0.15],
-                        [0.90, 0.10],
-                        [0.95, 0.05]
-                    ]
+                    "preprocessor__num__n_bins": [3, 5, 8],
+                    "preprocessor__num__strategy": ["uniform", "quantile"],
+                    "clf__alpha": [1e-9, 0.1, 0.5, 1.0, 2.0],
+                    "clf__min_categories": [100]
+                }
+            },
+            {
+                "mixed_nb": true,
+                "modelo_output": "modelos/mixed_nb_BestModel.pickle",
+                "parametros": {
+                    "alpha": [1e-9, 0.1, 0.5, 1.0, 2.0]
                 }
             }
         ]
     },
     "test": {
-        "modelos": ["modelos/knn_BestModel.pkl","modelos/random_forest_BestModel.pkl","modelos/decision_tree_BestModel.pkl","modelos/naive_bayes_BestModel.pkl"]
+        "modelos": [
+            "modelos/knn_BestModel.pkl",
+            "modelos/random_forest_BestModel.pkl",
+            "modelos/decision_tree_BestModel.pkl",
+            "modelos/categorical_nb_BestModel.pkl",
+            "modelos/mixed_nb_BestModel.pkl"
+        ]
     }
 }

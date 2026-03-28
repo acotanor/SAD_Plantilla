@@ -15,7 +15,7 @@
   - [KNN](#knn)
   - [Decision Tree](#decision-tree)
   - [Random Forest](#random-forest)
-  - [Naive Bayes](#naive-bayes)
+  - [Naive Bayes (Categorical y Mixed)](#naive-bayes-categorical-y-mixed)
 ---
 
 # Modo de uso
@@ -62,7 +62,7 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 ## Explicación de cada diccionario + campo
 ### General
 ```json
-"general":{
+"general": {
         "random_state": 42,
         "column": "columna_a_predecir",
         "data": {
@@ -134,16 +134,20 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
                 }
             },
             {
-                "naive_bayes":true,
-                "modelo_output":"modelos/naive_bayes_BestModel.pickle",
+                "categorical_nb": false,
+                "modelo_output": "modelos/categorical_nb_BestModel.pickle",
                 "parametros": {
-                    "var_smoothing": [1e-9, 1e-5, 0.001, 0.01, 0.1, 0.5, 1.0, 2.0, 5.0],
-                    "priors": [
-                        null,
-                        [0.85, 0.15],
-                        [0.90, 0.10],
-                        [0.95, 0.05]
-                    ]
+                    "preprocessor__num__n_bins": [3, 5, 8],
+                    "preprocessor__num__strategy": ["uniform", "quantile"],
+                    "clf__alpha": [1e-9, 0.1, 0.5, 1.0, 2.0],
+                    "clf__min_categories": [100]
+                }
+            },
+            {
+                "mixed_nb": true,
+                "modelo_output": "modelos/mixed_nb_BestModel.pickle",
+                "parametros": {
+                    "alpha": [1e-9, 0.1, 0.5, 1.0, 2.0]
                 }
             }
         ]
@@ -162,7 +166,13 @@ Cada script de la plantilla utiliza config.json como archivo de configuración c
 ### Test
 ```json
     "test": {
-        "modelos": ["modelos/knn_BestModel.pkl","modelos/random_forest_BestModel.pkl","modelos/decision_tree_BestModel.pkl","modelos/naive_bayes_BestModel.pkl"]
+        "modelos": [
+            "modelos/knn_BestModel.pkl",
+            "modelos/random_forest_BestModel.pkl",
+            "modelos/decision_tree_BestModel.pkl",
+            "modelos/categorical_nb_BestModel.pkl",
+            "modelos/mixed_nb_BestModel.pkl"
+        ]
     }
 ```
 - test: Configuración específica de test.py.
@@ -189,7 +199,18 @@ Random Forest ajusta varios decision trees por lo que comparte parametros con de
 - n_estimators: La cantidad de árboles de decisión a ajustar, es un número entero.
 - bootstrap: Si se usa o no bootstraping, es decir, si todos los árboles se entrenan con un subset distinto o no. Puede valer true o false.
 
-## Naive Bayes
-El modelo Naive Bayes Gausiano tiene dos hiperparámetros:
-- var_smoothing: Porcentaje más grande de la varianza que se suma para estabilizar el cálculo. Puede valer floats tanto en notación científica como en decimal; 1e-9, 1e-5, 0.001...
-- priors: Probabilidad a priori de las clases, puede valer un array de dos floats (prob a + prob b) o null si no hay probabilidad a priori.
+## Naive Bayes (Categorical y Mixed)
+Debido a la naturaleza de los datos (mezcla de variables continuas y categóricas), hemos sustituido el Naive Bayes tradicional por dos variantes distintas para comparar su rendimiento:
+
+### 1. Categorical Naive Bayes (`categorical_nb`)
+Este modelo requiere que **todas** las características sean categóricas (discretas). Para lograrlo, el código emplea un `Pipeline` de Scikit-Learn que primero discretiza (agrupa en "cajas") las variables numéricas continuas mediante `KBinsDiscretizer`, y luego pasa los datos resultantes al modelo `CategoricalNB`.
+Tiene 4 hiperparámetros principales (los prefijos indican a qué parte del Pipeline pertenecen):
+- preprocessor__num__n_bins: El número de intervalos o "cajas" en los que se dividirán las variables continuas. Es un número entero (ej. 3, 5, 8).
+- preprocessor__num__strategy: La estrategia usada para calcular los anchos de esas cajas. Puede valer "uniform" (todas las cajas tienen el mismo ancho matemático) o "quantile" (todas las cajas contendrán la misma cantidad de muestras).
+- clf__alpha: Parámetro de suavizado aditivo (Laplace/Lidstone). Es un float que se suma a los recuentos para evitar que una categoría no vista arrastre toda la probabilidad a 0. Puede valer 1e-9, 0.1, 1.0, etc.
+- clf__min_categories: Número mínimo de categorías esperadas. Lo fijamos en un valor genérico alto (ej. 100) para prevenir errores (IndexError) durante la validación cruzada si en un pliegue de validación aparece una categoría "nueva" que no estaba en el pliegue de entrenamiento.
+
+### 2. Mixed Naive Bayes (`mixed_nb`)
+Este modelo (implementado a través de la librería externa `mixed-naive-bayes`) es capaz de manejar internamente tanto características continuas como discretas. Asume una campana de Gauss para las numéricas continuas y probabilidades categóricas para las discretas. El script detecta y le indica automáticamente qué índices corresponden a columnas categóricas.
+Tiene el siguiente hiperparámetro para su barrido:
+- alpha: Parámetro de suavizado aditivo (Laplace), aplicado exclusivamente al cálculo de las variables categóricas. Evita que probabilidades nulas arruinen la predicción final. Puede valer floats como 1e-9, 0.5, 1.0, etc.
