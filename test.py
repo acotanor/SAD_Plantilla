@@ -8,8 +8,6 @@ from sklearn.metrics import f1_score, confusion_matrix, classification_report
 from sklearn.preprocessing import LabelEncoder
 from funciones import loadConfig, load_data
 
-from train import ScikitMixedNB
-
 def loadModel(model_output: str) -> object: # He cambiado obj por object
     """
     Función que carga un modelo con pickle.
@@ -133,6 +131,7 @@ if __name__ == '__main__':
             continue
 
         nombre_modelo = str(model.estimator).split("Classifier")[0].split("(")[0]  # KNeighborsClassifier() -> KNeighbors, DecisionTreeClassifier(random_state=42) -> DecisionTree,...
+        if nombre_modelo == "Pipeline": nombre_modelo = "CategoricalNB" # Parche guarro para que no llame Pipeline al nb.
         print(f"Modelo {nombre_modelo} cargado correctamente.")
 
         try:
