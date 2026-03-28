@@ -61,13 +61,6 @@
                     "clf__alpha": [1e-9, 0.1, 0.5, 1.0, 2.0],
                     "clf__min_categories": [100]
                 }
-            },
-            {
-                "mixed_nb": true,
-                "modelo_output": "modelos/mixed_nb_BestModel.pickle",
-                "parametros": {
-                    "alpha": [1e-9, 0.1, 0.5, 1.0, 2.0]
-                }
             }
         ]
     },
