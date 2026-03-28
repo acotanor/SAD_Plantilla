@@ -9,7 +9,14 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.naive_bayes import GaussianNB
+from sklearn.base import BaseEstimator, ClassifierMixin # <-- NUEVO: Para crear el Wrapper
+
+# --- NUEVAS IMPORTACIONES PARA NAIVE BAYES ---
+from sklearn.naive_bayes import CategoricalNB
+from sklearn.preprocessing import KBinsDiscretizer
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
 
 # Funciones definidas en funciones.py
 from funciones import loadConfig, load_data
@@ -122,24 +129,54 @@ def random_forest(model_output: str, parametros: dict):
     # 4. Guardar los resultados
     save_model(model_output, model)
 
-def naive_bayes(model_output: str, parametros: dict):
+
+def categorical_nb(model_output: str, parametros: dict):
     """
-    Lógica principal de entrenamiento para el algoritmo Naive Bayes Gaussiano.
-    Asume que las características numéricas tienen una distribución normal (gaussiana).
+    Lógica principal de entrenamiento para Categorical Naive Bayes.
+
+    Según el enunciado, para usar CategoricalNB necesitamos que TODOS los datos sean discretos/categóricos.
+    Como nuestro dataset (procesado en process.py) tiene algunas variables numéricas continuas (floats),
+    tenemos que discretizarlas primero (agruparlas en "cajas" o "bins") usando KBinsDiscretizer.
     """
-    # 1. Obtener los datos listos para entrenar y validar
+    # 1. Obtenemos los datos listos para entrenar en formato NumPy array.
     x_train, x_dev, y_train, y_dev = divide_data()
 
-    # 2. Configurar la búsqueda exhaustiva de hiperparámetros (GridSearchCV)
-    # En tu JSON estás pasando el parámetro 'var_smoothing', que ayuda a estabilizar el cálculo
-    model = GridSearchCV(GaussianNB(), parametros, n_jobs=config.get("cpu", -1), scoring=config["scoring"])
+    # 2. Identificar qué columnas son continuas y cuáles son categóricas.
+    # Miramos el DataFrame 'data' original (cargado globalmente) para leer sus tipos (dtypes).
+    x_df = data.drop(columns=[config["column"]])
 
-    # 3. Ajustar el modelo a los datos de entrenamiento
+    # Guardamos la posición (índice) de las columnas que ya son categóricas (enteros o texto).
+    cat_cols_idx = [i for i, dtype in enumerate(x_df.dtypes) if dtype in ['int64', 'int32', 'object']]
+
+    # Guardamos la posición (índice) de las columnas numéricas continuas (floats).
+    num_cols_idx = [i for i, dtype in enumerate(x_df.dtypes) if dtype in ['float64', 'float32']]
+
+    # 3. ColumnTransformer: El "director de tráfico" de las columnas.
+    # Le decimos: "Aplica KBinsDiscretizer SOLO a las columnas numéricas continuas.
+    # A las categóricas, déjalas pasar tal cual ('passthrough') para no estropearlas."
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', KBinsDiscretizer(encode='ordinal', quantile_method='averaged_inverted_cdf'), num_cols_idx),
+            ('cat', 'passthrough', cat_cols_idx)
+        ])
+
+    # 4. Pipeline: La tubería que une el preprocesado y el modelo de clasificación.
+    # Esto es VITAL para evitar la "Fuga de Datos" (Data Leakage) al usar GridSearchCV.
+    # Asegura que los rangos de las cajas de discretización se calculen estrictamente con los
+    # datos de entrenamiento de cada pliegue interno, sin hacer trampa mirando los de validación.
+    pipeline = Pipeline([
+        ('preprocessor', preprocessor),
+        ('clf', CategoricalNB())
+    ])
+
+    # 5. Búsqueda exhaustiva de hiperparámetros (GridSearchCV).
+    # OJO: Como usamos un Pipeline, el GridSearchCV busca combinaciones para toda la tubería a la vez
+    # (por eso en el config.json los parámetros se llaman 'preprocessor__num__n_bins' o 'clf__alpha').
+    model = GridSearchCV(pipeline, parametros, n_jobs=config.get("cpu", -1), scoring=config["scoring"])
+
+    # 6. Entrenamiento y guardado de resultados.
     model.fit(x_train, y_train)
-
-    # 4. Guardar el mejor modelo (.pkl) y el histórico de métricas (.csv)
     save_model(model_output, model)
-
 
 # ==========================================
 # BLOQUE PRINCIPAL
@@ -174,8 +211,8 @@ if __name__ == '__main__':
             print("Entrenando modelo Random Forest...")
             random_forest(modelo["modelo_output"], modelo["parametros"])
             print("Modelo Random Forest entrenado con éxito.")
-        elif "naive_bayes" in modelo:
-            print("Entrenando modelo Naive Bayes...")
-            naive_bayes(modelo["modelo_output"], modelo["parametros"])
-            print("Modelo Naive Bayes entrenado con éxito.")
+        elif "categorical_nb" in modelo:
+            print("Entrenando modelo Categorical Naive Bayes con Discretización...")
+            categorical_nb(modelo["modelo_output"], modelo["parametros"])
+            print("Modelo CategoricalNB entrenado con éxito.")
     sys.exit(0)

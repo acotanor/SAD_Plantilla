@@ -46,10 +46,18 @@ def select_features(df_train: pd.DataFrame, target_col: str):
     num_feat = df_train.select_dtypes(include=['int64', 'float64']).columns.tolist()
     cat_feat = df_train.select_dtypes(include=['object', 'string']).columns.tolist()
 
-    # Detectamos texto libre si la media de longitud de los strings supera los 30 caracteres
+    # 1. Detectamos texto libre PRIMERO (solo sobre las columnas que realmente son texto/strings)
     text_feat = [col for col in cat_feat if df_train[col].str.len().mean() > 30]
-    # El resto de variables tipo object/string se consideran categóricas normales
+
+    # 2. El resto de variables tipo object/string se consideran categóricas normales
     cat_feat = [col for col in cat_feat if col not in text_feat]
+
+    # 3. Movemos las variables binarias (0 y 1) a categóricas
+    for col in num_feat[:]:
+        if df_train[col].nunique() <= 2:
+            num_feat.remove(col)
+            cat_feat.append(col)
+
 
     # PROTECCIÓN CRÍTICA: Quitamos la columna objetivo de estas listas para evitar
     # que se escale, se vectorice o se modifique accidentalmente durante el preprocesado.

@@ -5,7 +5,7 @@ import sys
 import pickle
 
 from sklearn.metrics import f1_score, confusion_matrix, classification_report
-
+from sklearn.preprocessing import LabelEncoder
 from funciones import loadConfig, load_data
 
 def loadModel(model_output: str) -> object: # He cambiado obj por object
@@ -35,7 +35,7 @@ def comparar_metricas(metricas: dict) -> None:
     Parámetros:
         - metricas: Diccionario con los resultados detallados de cada modelo.
     """
-    metricas_evaluar = ["f1_micro", "f1_macro", "f1_weighted", "f1_score"]
+    metricas_evaluar = ["f1_micro", "f1_macro", "f1_weighted"]
     mejores_modelos = {}
 
     print("\n--------------------------------------------------")
@@ -113,6 +113,7 @@ if __name__ == '__main__':
     # Separamos el dataset
     data = load_data(config["test_output"])  # Cargamos el dataset del test completo
     y_true = data[config["column"]].values  # Cargamos los valores a predecir
+    y_true = LabelEncoder().fit_transform(y_true) # Pasamos datos categoricos a numericos.
     data = data.drop(
         columns=[config["column"]])  # Separamos los valores a predecir del dataset para poder hacer predicciones.
 
@@ -130,6 +131,7 @@ if __name__ == '__main__':
             continue
 
         nombre_modelo = str(model.estimator).split("Classifier")[0].split("(")[0]  # KNeighborsClassifier() -> KNeighbors, DecisionTreeClassifier(random_state=42) -> DecisionTree,...
+        if nombre_modelo == "Pipeline": nombre_modelo = "CategoricalNB" # Parche guarro para que no llame Pipeline al nb.
         print(f"Modelo {nombre_modelo} cargado correctamente.")
 
         try:
@@ -147,7 +149,6 @@ if __name__ == '__main__':
             metricas[nombre_modelo]["f1_micro"] = f1_score(y_true, predicciones, average='micro')
             metricas[nombre_modelo]["f1_macro"] = f1_score(y_true, predicciones, average='macro')
             metricas[nombre_modelo]["f1_weighted"] = f1_score(y_true, predicciones, average='weighted')
-            metricas[nombre_modelo]["f1_score"] = f1_score(y_true, predicciones)
             print(f"""  
 Test del modelo {nombre_modelo}:
 
@@ -166,9 +167,6 @@ Test del modelo {nombre_modelo}:
 
         F1-score weighted:
         {metricas[nombre_modelo]["f1_weighted"]}
-
-        F1-score:
-        {metricas[nombre_modelo]["f1_score"]}
                         """)
         except Exception as e:
             print(e)
