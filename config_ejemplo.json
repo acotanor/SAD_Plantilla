@@ -72,6 +72,7 @@
         ]
     },
     "test": {
+        "metricas": "modelos/metricas_ejemplo.csv",
         "modelos": [
             "modelos/categorical_nb_BestModel.pkl",
             "modelos/mixed_nb_BestModel.pkl"

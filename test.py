@@ -173,5 +173,6 @@ Test del modelo {nombre_modelo}:
             sys.exit(1)
 
     comparar_metricas(metricas)
-    guardar_metricas_json(metricas, args.metricas)
+    if config["metricas"]==None: guardar_metricas_json(metricas, args.metricas)
+    else: guardar_metricas_json(metricas, config["metricas"])
     sys.exit(0)
