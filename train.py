@@ -197,7 +197,7 @@ def categorical_nb(model_output: str, parametros: dict):
     # A las categóricas, déjalas pasar tal cual ('passthrough') para no estropearlas."
     preprocessor = ColumnTransformer(
         transformers=[
-            ('num', KBinsDiscretizer(encode='ordinal'), num_cols_idx),
+            ('num', KBinsDiscretizer(encode='ordinal', quantile_method='averaged_inverted_cdf'), num_cols_idx),
             ('cat', 'passthrough', cat_cols_idx)
         ])
 
