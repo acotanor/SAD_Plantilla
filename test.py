@@ -8,6 +8,8 @@ from sklearn.metrics import f1_score, confusion_matrix, classification_report
 
 from funciones import loadConfig, load_data
 
+from train import ScikitMixedNB
+
 def loadModel(model_output: str) -> object: # He cambiado obj por object
     """
     Función que carga un modelo con pickle.

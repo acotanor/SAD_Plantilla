@@ -22,7 +22,7 @@
         "scoring": "f1_macro",
         "modelos": [
             {
-                "knn": true,
+                "knn": false,
                 "modelo_output":"modelos/knn_BestModel.pickle",
                 "parametros": {
                     "n_neighbors": [1,2,3,4,5,6,7,8,9,10],
@@ -53,7 +53,7 @@
                 }
             },
             {
-                "categorical_nb": false,
+                "categorical_nb": true,
                 "modelo_output": "modelos/categorical_nb_BestModel.pickle",
                 "parametros": {
                     "preprocessor__num__n_bins": [3, 5, 8],
@@ -73,9 +73,6 @@
     },
     "test": {
         "modelos": [
-            "modelos/knn_BestModel.pkl",
-            "modelos/random_forest_BestModel.pkl",
-            "modelos/decision_tree_BestModel.pkl",
             "modelos/categorical_nb_BestModel.pkl",
             "modelos/mixed_nb_BestModel.pkl"
         ]
