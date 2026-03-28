@@ -1,36 +1,48 @@
 {
-    "KNeighbors": {
-        "classification_report": "              precision    recall  f1-score   support\n\n           0       1.00      0.98      0.99      2042\n           1       0.91      0.99      0.95       343\n\n    accuracy                           0.98      2385\n   macro avg       0.95      0.99      0.97      2385\nweighted avg       0.98      0.98      0.98      2385\n",
-        "confusion_matrix": [
-            [
-                2007,
-                35
-            ],
-            [
-                4,
-                339
-            ]
-        ],
-        "f1_micro": 0.9836477987421384,
-        "f1_macro": 0.9679920963550942,
-        "f1_weighted": 0.9839387620359025,
-        "f1_score": 0.9456066945606695
-    },
     "Pipeline": {
-        "classification_report": "              precision    recall  f1-score   support\n\n           0       0.96      0.65      0.77      2042\n           1       0.28      0.82      0.42       343\n\n    accuracy                           0.67      2385\n   macro avg       0.62      0.73      0.60      2385\nweighted avg       0.86      0.67      0.72      2385\n",
+        "classification_report": "              precision    recall  f1-score   support\n\n           0       1.00      1.00      1.00         7\n           1       0.92      0.92      0.92        12\n           2       0.86      0.86      0.86         7\n\n    accuracy                           0.92        26\n   macro avg       0.92      0.92      0.92        26\nweighted avg       0.92      0.92      0.92        26\n",
         "confusion_matrix": [
             [
-                1326,
-                716
+                7,
+                0,
+                0
             ],
             [
-                62,
-                281
+                0,
+                11,
+                1
+            ],
+            [
+                0,
+                1,
+                6
             ]
         ],
-        "f1_micro": 0.6737945492662474,
-        "f1_macro": 0.5962904138201123,
-        "f1_weighted": 0.7222995297272735,
-        "f1_score": 0.41940298507462687
+        "f1_micro": 0.9230769230769231,
+        "f1_macro": 0.9246031746031745,
+        "f1_weighted": 0.9230769230769231
+    },
+    "ScikitMixedNB": {
+        "classification_report": "              precision    recall  f1-score   support\n\n           0       1.00      1.00      1.00         7\n           1       0.91      0.83      0.87        12\n           2       0.75      0.86      0.80         7\n\n    accuracy                           0.88        26\n   macro avg       0.89      0.90      0.89        26\nweighted avg       0.89      0.88      0.89        26\n",
+        "confusion_matrix": [
+            [
+                7,
+                0,
+                0
+            ],
+            [
+                0,
+                10,
+                2
+            ],
+            [
+                0,
+                1,
+                6
+            ]
+        ],
+        "f1_micro": 0.8846153846153846,
+        "f1_macro": 0.8898550724637682,
+        "f1_weighted": 0.8859531772575251
     }
 }
