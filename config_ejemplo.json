@@ -56,7 +56,7 @@
                 "categorical_nb": true,
                 "modelo_output": "modelos/categorical_nb_BestModel.pickle",
                 "parametros": {
-                    "preprocessor__num__n_bins": [3, 5, 8],
+                    "preprocessor__num__n_bins": [3, 5],
                     "preprocessor__num__strategy": ["uniform", "quantile"],
                     "clf__alpha": [1e-9, 0.1, 0.5, 1.0, 2.0],
                     "clf__min_categories": [100]
