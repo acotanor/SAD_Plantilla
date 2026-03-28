@@ -1,0 +1,21 @@
+Params,Score
+"{'clf__alpha': 1e-09, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 3, 'preprocessor__num__strategy': 'uniform'}",0.8740203476058129
+"{'clf__alpha': 1e-09, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 3, 'preprocessor__num__strategy': 'quantile'}",0.8462430546218089
+"{'clf__alpha': 1e-09, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 5, 'preprocessor__num__strategy': 'uniform'}",0.8603333766715302
+"{'clf__alpha': 1e-09, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 5, 'preprocessor__num__strategy': 'quantile'}",0.7990723772429291
+"{'clf__alpha': 0.1, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 3, 'preprocessor__num__strategy': 'uniform'}",0.8740203476058129
+"{'clf__alpha': 0.1, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 3, 'preprocessor__num__strategy': 'quantile'}",0.8462430546218089
+"{'clf__alpha': 0.1, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 5, 'preprocessor__num__strategy': 'uniform'}",0.8603333766715302
+"{'clf__alpha': 0.1, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 5, 'preprocessor__num__strategy': 'quantile'}",0.7990723772429291
+"{'clf__alpha': 0.5, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 3, 'preprocessor__num__strategy': 'uniform'}",0.8740203476058129
+"{'clf__alpha': 0.5, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 3, 'preprocessor__num__strategy': 'quantile'}",0.8462430546218089
+"{'clf__alpha': 0.5, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 5, 'preprocessor__num__strategy': 'uniform'}",0.8603333766715302
+"{'clf__alpha': 0.5, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 5, 'preprocessor__num__strategy': 'quantile'}",0.7990723772429291
+"{'clf__alpha': 1.0, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 3, 'preprocessor__num__strategy': 'uniform'}",0.8740203476058129
+"{'clf__alpha': 1.0, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 3, 'preprocessor__num__strategy': 'quantile'}",0.8411022803633875
+"{'clf__alpha': 1.0, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 5, 'preprocessor__num__strategy': 'uniform'}",0.8603333766715302
+"{'clf__alpha': 1.0, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 5, 'preprocessor__num__strategy': 'quantile'}",0.7948416462880602
+"{'clf__alpha': 2.0, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 3, 'preprocessor__num__strategy': 'uniform'}",0.8740203476058129
+"{'clf__alpha': 2.0, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 3, 'preprocessor__num__strategy': 'quantile'}",0.8411022803633875
+"{'clf__alpha': 2.0, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 5, 'preprocessor__num__strategy': 'uniform'}",0.8603333766715302
+"{'clf__alpha': 2.0, 'clf__min_categories': 100, 'preprocessor__num__n_bins': 5, 'preprocessor__num__strategy': 'quantile'}",0.7948416462880602

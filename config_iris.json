@@ -23,7 +23,7 @@
         "modelos": [
             {
                 "knn": true,
-                "modelo_output":"modelos/knn_BestModel.pickle",
+                "modelo_output":"modelos/knn_BestModel_iris.pkl",
                 "parametros": {
                     "n_neighbors": [1,2,3,4,5,6,7,8,9,10],
 		            "weights": ["uniform","distance"],
@@ -32,7 +32,7 @@
             },
             {
                 "random_forest": true,
-                "modelo_output":"modelos/random_forest_BestModel.pickle",
+                "modelo_output":"modelos/random_forest_BestModel_iris.pkl",
                 "parametros": {
                     "n_estimators": [10,50,100],
                     "criterion": ["gini","entropy"],
@@ -44,7 +44,7 @@
             },
             {
                 "decision_tree": true,
-                "modelo_output":"modelos/decision_tree_BestModel.pickle",
+                "modelo_output":"modelos/decision_tree_BestModel_iris.pkl",
                 "parametros": {
                     "criterion": ["gini","entropy"],
                     "max_depth": [null,5,10,15,20],
@@ -54,9 +54,9 @@
             },
             {
                 "categorical_nb": true,
-                "modelo_output": "modelos/categorical_nb_BestModel.pickle",
+                "modelo_output": "modelos/categorical_nb_BestModel_iris.pkl",
                 "parametros": {
-                    "preprocessor__num__n_bins": [3, 5, 8],
+                    "preprocessor__num__n_bins": [3, 5],
                     "preprocessor__num__strategy": ["uniform", "quantile"],
                     "clf__alpha": [1e-9, 0.1, 0.5, 1.0, 2.0],
                     "clf__min_categories": [100]
@@ -67,6 +67,9 @@
     "test": {
         "metricas": "modelos/metricas_iris.csv",
         "modelos": [
+            "modelos/knn_BestModel_iris.pkl",
+            "modelos/random_forest_BestModel_iris.pkl",
+            "modelos/decision_tree_BestModel_iris.pkl",
             "modelos/categorical_nb_BestModel.pkl"
         ]
     }

@@ -1,4 +1,4 @@
-import json
+import csv
 import numpy as np
 import argparse
 import sys
@@ -71,33 +71,33 @@ def comparar_metricas(metricas: dict) -> None:
         for metrica, datos in mejores_modelos.items():
             print(f"{metrica.upper()}: {datos['modelo']} ({datos['puntuacion']:.4f})")
 
-
-class NumpyEncoder(json.JSONEncoder):
+def guardar_metricas_csv(metricas: dict, ruta_archivo: str) -> None:
     """
-    Codificador personalizado para permitir la serialización de arrays
-    de numpy (como la matriz de confusión) a formato JSON.
-    """
-
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super(NumpyEncoder, self).default(obj)
-
-
-def guardar_metricas_json(metricas: dict, ruta_archivo: str) -> None:
-    """
-    Almacena el diccionario completo de métricas en un archivo JSON.
+    Almacena el diccionario completo de métricas en un archivo CSV.
 
     Parámetros:
         - metricas: Diccionario con los resultados de cada modelo.
         - ruta_archivo: Ruta y nombre del archivo de salida.
     """
+    fieldnames = ['modelo', 'f1_micro', 'f1_macro', 'f1_weighted']
+    
     try:
-        with open(ruta_archivo, 'w', encoding='utf-8') as archivo:
-            json.dump(metricas, archivo, indent=4, cls=NumpyEncoder, ensure_ascii=False)
+        with open(ruta_archivo, 'w', newline='', encoding='utf-8') as archivo:
+            writer = csv.DictWriter(archivo, fieldnames=fieldnames)
+            writer.writeheader() # Escribimos la cabecera
+            
+            # Recorremos el diccionario para extraer los datos
+            for nombre_modelo, scores in metricas.items():
+                writer.writerow({
+                    'modelo': nombre_modelo,
+                    'f1_micro': scores.get('f1_micro', 0),
+                    'f1_macro': scores.get('f1_macro', 0),
+                    'f1_weighted': scores.get('f1_weighted', 0)
+                })
+                
         print(f"Métricas almacenadas correctamente en: {ruta_archivo}")
     except Exception as e:
-        print(f"Error al intentar guardar las métricas en formato JSON: {e}")
+        print(f"Error al intentar guardar las métricas en formato CSV: {e}")
 
 if __name__ == '__main__':
     # Argumentos de la terminal (config.json)
@@ -173,6 +173,6 @@ Test del modelo {nombre_modelo}:
             sys.exit(1)
 
     comparar_metricas(metricas)
-    if config["metricas"]==None: guardar_metricas_json(metricas, args.metricas)
-    else: guardar_metricas_json(metricas, config["metricas"])
+    if config["metricas"]==None: guardar_metricas_csv(metricas, args.metricas)
+    else: guardar_metricas_csv(metricas, config["metricas"])
     sys.exit(0)
