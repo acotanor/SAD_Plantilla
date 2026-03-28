@@ -22,7 +22,7 @@
         "scoring": "f1_macro",
         "modelos": [
             {
-                "knn": false,
+                "knn": true,
                 "modelo_output":"modelos/knn_BestModel.pickle",
                 "parametros": {
                     "n_neighbors": [1,2,3,4,5,6,7,8,9,10],
@@ -31,7 +31,7 @@
                 }
             },
             {
-                "random_forest": false,
+                "random_forest": true,
                 "modelo_output":"modelos/random_forest_BestModel.pickle",
                 "parametros": {
                     "n_estimators": [10,50,100],
@@ -43,7 +43,7 @@
                 }
             },
             {
-                "decision_tree": false,
+                "decision_tree": true,
                 "modelo_output":"modelos/decision_tree_BestModel.pickle",
                 "parametros": {
                     "criterion": ["gini","entropy"],
@@ -67,8 +67,10 @@
     "test": {
         "metricas": "modelos/metricas_ejemplo.csv",
         "modelos": [
-            "modelos/categorical_nb_BestModel.pkl",
-            "modelos/mixed_nb_BestModel.pkl"
+            "modelos/knn_BestModel.pkl",
+            "modelos/random_forest_BestModel.pkl",
+            "modelos/decision_tree_BestModel.pkl",
+            "modelos/categorical_nb_BestModel.pkl"
         ]
     }
 }
